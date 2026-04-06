@@ -15,7 +15,8 @@ import {
   ArrowUpRight,
   Info,
   ChevronRight,
-  Check
+  Check,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
@@ -58,69 +59,153 @@ export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
   );
 }
 
-// --- CHAPTER 0: ОГЛАВЛЕНИЕ ---
+// --- CHAPTER 0: ОГЛАВЛЕНИЕ (ИНТЕРАКТИВНЫЙ ВЕРБАТИВ) ---
 function ContentVerbatim() {
+  const [step, setStep] = React.useState(0);
+  const totalSteps = 3;
+
+  const handleNext = () => setStep((prev) => Math.min(prev + 1, totalSteps - 1));
+  const handlePrev = () => setStep((prev) => Math.max(prev - 1, 0));
+
   return (
     <>
       <PageHeader title="Маркетинговая стратегия" subtitle="Smart Solutions — инвестиционная логика" />
       
-      <div className="mx-6 mb-8 p-6 rounded-[40px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase text-blue-600 tracking-widest px-4">Цель стратегии</h3>
-            <div className="p-4 rounded-3xl bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10">
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Достижение устойчивой прибыли агентства ≥ 3 сделки в месяц / ≥ $10 000 чистой прибыли</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase text-emerald-600 tracking-widest px-4">Условия</h3>
-            <div className="p-4 rounded-3xl bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10">
-               <div className="flex justify-between items-center mb-1">
-                 <span className="text-[10px] font-bold text-slate-500">Горизонт</span>
-                 <span className="text-[10px] font-black text-slate-900 dark:text-white">6–12 месяцев</span>
-               </div>
-               <div className="flex justify-between items-center">
-                 <span className="text-[10px] font-bold text-slate-500">Рынок</span>
-                 <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Бали & Таиланд</span>
-               </div>
-            </div>
-          </div>
+      <div className="px-6 mb-8">
+        <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
+          {['Фокус документа', 'Ключевая идея', 'Оглавление'].map((label, i) => (
+            <button
+              key={i}
+              onClick={() => setStep(i)}
+              className={cn(
+                "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border",
+                step === i 
+                  ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/10 scale-105" 
+                  : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-800"
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      <HighlightCard variant="dark">
-        <p className="text-[10px] uppercase font-black text-slate-500 mb-4 tracking-[0.2em] text-center">Ключевая идея</p>
-        <h2 className="text-lg font-black italic tracking-tighter leading-tight text-white mb-4">
-           Smart Solutions — это не классическое агентство недвижимости.
-        </h2>
-        <p className="text-sm font-medium text-slate-400 leading-relaxed italic">
-          Это агентство, которое продает инвестиционную логику и стратегию, а объекты недвижимости использует как инструмент реализации целей инвестора.
-        </p>
-      </HighlightCard>
+        <div className="relative min-h-[420px]">
+          <AnimatePresence mode="wait">
+            {step === 0 && (
+              <motion.div
+                key="step0"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="p-8 rounded-[40px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <h3 className="text-xs font-black uppercase text-blue-600 tracking-widest mb-6">Цель стратегии</h3>
+                  <p className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-8">
+                    Достижение устойчивой прибыли агентства ≥ 3 сделки в месяц / ≥ $10 000 чистой прибыли
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 border-t border-slate-50 dark:border-slate-800 pt-6">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Горизонт</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white italic">6–12 месяцев</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Рынок</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white italic">Бали & Таиланд</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
-      <SectionHeader title="Оглавление" />
-      <div className="mx-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-        {[
-          "1. Введение и контекст",
-          "2. Позиционирование Smart Solutions",
-          "3. Целевая аудитория и фокус",
-          "4. Продуктовая переупаковка",
-          "5. Воронка продаж нового типа",
-          "6. Каналы привлечения клиентов",
-          "7. Партнёрская модель",
-          "8. Операционка и контроль",
-          "9. План внедрения",
-          "10. Итоговая логика роста"
-        ].map((item, i) => (
-          <div key={i} className="group p-4 rounded-[24px] bg-white dark:bg-slate-900 border border-slate-50 dark:border-slate-800/50 hover:border-blue-200 dark:hover:border-blue-900 transition-all duration-300">
-            <div className="flex items-center gap-4">
-               <span className="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                 {i+1}
-               </span>
-               <p className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest leading-none truncate">{item.split('. ')[1]}</p>
-            </div>
-          </div>
-        ))}
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="p-8 rounded-[48px] bg-slate-900 text-white shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/20 blur-[100px] rounded-full -mr-24 -mt-24" />
+                  
+                  <p className="text-[10px] uppercase font-black text-slate-500 mb-6 tracking-[0.3em] font-mono">Core Logic</p>
+                  <h2 className="text-xl font-black italic tracking-tighter leading-tight mb-8">
+                     Smart Solutions — это не классическое агентство недвижимости.
+                  </h2>
+                  <p className="text-sm font-bold text-slate-300 leading-relaxed italic mb-8 border-l-2 border-blue-600 pl-4">
+                    Это агентство, которое продает инвестиционную логику и стратегию, а объекты недвижимости использует как инструмент реализации целей инвестора.
+                  </p>
+                  <p className="text-xs font-medium text-slate-500 leading-relaxed uppercase tracking-tighter">
+                    Настоящая маркетинговая стратегия описывает, как агентству выйти из перегретого конкурентного поля и построить системный поток качественных инвестиционных клиентов через партнёрский маркетинг, экспертное доверие и продуктовую переупаковку.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="grid grid-cols-1 gap-2"
+              >
+                {[
+                  "1. Введение и контекст",
+                  "2. Позиционирование Smart Solutions",
+                  "3. Целевая аудитория и фокус",
+                  "4. Продуктовая переупаковка",
+                  "5. Воронка продаж нового типа",
+                  "6. Каналы привлечения клиентов",
+                  "7. Партнёрская модель",
+                  "8. Операционка и контроль",
+                  "9. План внедрения",
+                  "10. Итоговая логика роста"
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 rounded-[20px] bg-white dark:bg-slate-900 border border-slate-50 dark:border-slate-800/50">
+                    <span className="text-[10px] font-black text-blue-600 font-mono w-4">{i+1}</span>
+                    <p className="text-[10px] font-black uppercase text-slate-900 dark:text-white tracking-widest truncate">{item.split('. ')[1]}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="flex items-center justify-between mt-8">
+           <button 
+             onClick={handlePrev}
+             disabled={step === 0}
+             className={cn(
+               "w-12 h-12 rounded-full flex items-center justify-center border transition-all active:scale-95",
+               step === 0 ? "opacity-30 pointer-events-none" : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white"
+             )}
+           >
+             <ArrowLeft size={18} className="translate-x-[-1px]" />
+           </button>
+
+           <div className="flex gap-1.5">
+             {[0, 1, 2].map((i) => (
+               <div key={i} className={cn(
+                 "h-1 rounded-full transition-all duration-500",
+                 step === i ? "w-6 bg-blue-600" : "w-1.5 bg-slate-200 dark:bg-slate-800"
+               )} />
+             ))}
+           </div>
+
+           <button 
+             onClick={handleNext}
+             disabled={step === totalSteps - 1}
+             className={cn(
+               "w-12 h-12 rounded-full flex items-center justify-center border transition-all active:scale-95",
+               step === totalSteps - 1 ? "opacity-30 pointer-events-none" : "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/20"
+             )}
+           >
+             <ChevronRight size={18} className="translate-x-[1px]" />
+           </button>
+        </div>
       </div>
     </>
   );
