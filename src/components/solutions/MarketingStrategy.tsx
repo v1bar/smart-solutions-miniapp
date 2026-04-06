@@ -24,40 +24,8 @@ interface MarketingStrategyProps {
   pageId?: string;
 }
 
-export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
-  const renderContent = () => {
-    switch (pageId) {
-      case 'content': return <ContentVerbatim />;
-      case 'intro': return <IntroVerbatim />;
-      case 'positioning': return <PositioningVerbatim />;
-      case 'audience': return <AudienceVerbatim />;
-      case 'product': return <ProductVerbatim />;
-      case 'funnel': return <FunnelVerbatim />;
-      case 'acquisition': return <AcquisitionVerbatim />;
-      case 'partners': return <PartnershipVerbatim />;
-      case 'ops': return <OpsVerbatim />;
-      case 'roadmap': return <RoadmapVerbatim />;
-      case 'growth': return <GrowthVerbatim />;
-      default: return <ContentVerbatim />;
-    }
-  };
+// Component definitions moved to bottom for hoisting stability
 
-  return (
-    <div className="min-h-full pb-24 bg-slate-50/30 dark:bg-slate-950/30 font-sans">
-       <AnimatePresence mode="wait">
-          <motion.div
-            key={pageId}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          >
-            {renderContent()}
-          </motion.div>
-       </AnimatePresence>
-    </div>
-  );
-}
 
 // --- CHAPTER 0: ОГЛАВЛЕНИЕ (ИНТЕРАКТИВНЫЙ ВЕРБАТИВ) ---
 function ContentVerbatim() {
@@ -213,93 +181,107 @@ function ContentVerbatim() {
 
 // --- SHARED UI COMPONENTS (ZENLABS VERBATIM TOOLKIT) ---
 
-const PageHeader = ({ title, subtitle }: { title: string, subtitle?: string }) => (
-  <div className="px-6 pt-10 pb-6">
-    <div className="h-1.5 w-12 bg-blue-600 rounded-full mb-6" />
-    <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter uppercase">{title}</h1>
-    {subtitle && <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm font-bold uppercase tracking-widest">{subtitle}</p>}
-  </div>
-);
-
-const SectionHeader = ({ id, title }: { id?: string, title: string }) => (
-  <div className="px-6 mt-10 mb-5">
-    <div className="flex items-center gap-3">
-      {id && <span className="text-xs font-black text-blue-600 font-mono">{id}</span>}
-      <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
+function PageHeader({ title, subtitle }: { title: string, subtitle?: string }) {
+  return (
+    <div className="px-6 pt-10 pb-6">
+      <div className="h-1.5 w-12 bg-blue-600 rounded-full mb-6" />
+      <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter uppercase">{title}</h1>
+      {subtitle && <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm font-bold uppercase tracking-widest">{subtitle}</p>}
     </div>
-  </div>
-);
+  );
+}
 
-const VerbatimTable = ({ rows, headers }: { rows: string[][], headers?: string[] }) => (
-  <div className="mx-6 mb-8 overflow-hidden rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-    {headers && (
-      <div className="grid grid-cols-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-        {headers.map((h, i) => (
-          <div key={i} className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">{h}</div>
-        ))}
+function SectionHeader({ id, title }: { id?: string, title: string }) {
+  return (
+    <div className="px-6 mt-10 mb-5">
+      <div className="flex items-center gap-3">
+        {id && <span className="text-xs font-black text-blue-600 font-mono">{id}</span>}
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
       </div>
-    )}
-    {rows.map((row, i) => (
-      <div key={i} className={cn(
-        "grid grid-cols-2 border-b border-slate-50 dark:border-slate-800 last:border-0",
-        i % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/30 dark:bg-slate-800/20"
-      )}>
-        <div className="p-5 text-xs font-black text-slate-900 dark:text-white uppercase leading-tight tracking-tighter border-r border-slate-50 dark:border-slate-800">{row[0]}</div>
-        <div className="p-5 text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed italic">{row[1]}</div>
-      </div>
-    ))}
-  </div>
-);
+    </div>
+  );
+}
 
-const SimpleTable = ({ rows }: { rows: { label: string, value: string, check?: boolean, cross?: boolean }[] }) => (
-  <div className="mx-6 mb-8 overflow-hidden rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-    {rows.map((row, i) => (
-      <div key={i} className="flex items-center justify-between p-5 border-b border-slate-50 dark:border-slate-800 last:border-0">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest w-2/3 leading-tight">{row.label}</span>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{row.value}</span>
-          {row.check && <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />}
-          {row.cross && <XCircle size={16} className="text-red-400 shrink-0" />}
+function VerbatimTable({ rows, headers }: { rows: string[][], headers?: string[] }) {
+  return (
+    <div className="mx-6 mb-8 overflow-hidden rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      {headers && (
+        <div className="grid grid-cols-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+          {headers.map((h, i) => (
+            <div key={i} className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">{h}</div>
+          ))}
         </div>
-      </div>
-    ))}
-  </div>
-);
-
-const Paragraph = ({ children, className, italic }: { children: React.ReactNode, className?: string, italic?: boolean }) => (
-  <p className={cn(
-    "px-6 mb-6 text-sm leading-relaxed",
-    italic ? "text-slate-500 dark:text-slate-400 italic" : "text-slate-600 dark:text-slate-400",
-    className
-  )}>{children}</p>
-);
-
-const HighlightCard = ({ children, variant = 'blue' }: { children: React.ReactNode, variant?: 'blue' | 'red' | 'dark' }) => (
-  <div className={cn(
-    "mx-6 my-8 p-8 rounded-[48px] border shadow-sm relative overflow-hidden",
-    variant === 'blue' && "bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/20",
-    variant === 'red' && "bg-red-50/50 dark:bg-red-500/5 border-red-100 dark:border-red-500/20",
-    variant === 'dark' && "bg-slate-900 text-white border-0 shadow-2xl"
-  )}>
-    {children}
-  </div>
-);
-
-const ListItem = ({ children, type = 'check', className }: { children: React.ReactNode, type?: 'check' | 'cross' | 'bullet', className?: string }) => (
-  <div className={cn("px-6 flex gap-4 mb-5 items-start group text-slate-400", className)}>
-    <div className={cn(
-      "w-7 h-7 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-500 group-hover:scale-110",
-      type === 'check' && "bg-emerald-500/10 text-emerald-500",
-      type === 'cross' && "bg-red-500/10 text-red-500",
-      type === 'bullet' && "bg-blue-500/10 text-blue-500"
-    )}>
-      {type === 'check' && <Check size={14} strokeWidth={3} />}
-      {type === 'cross' && <XCircle size={14} strokeWidth={3} />}
-      {type === 'bullet' && <ChevronRight size={14} strokeWidth={3} />}
+      )}
+      {rows.map((row, i) => (
+        <div key={i} className={cn(
+          "grid grid-cols-2 border-b border-slate-50 dark:border-slate-800 last:border-0",
+          i % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/30 dark:bg-slate-800/20"
+        )}>
+          <div className="p-5 text-xs font-black text-slate-900 dark:text-white uppercase leading-tight tracking-tighter border-r border-slate-50 dark:border-slate-800">{row[0]}</div>
+          <div className="p-5 text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed italic">{row[1]}</div>
+        </div>
+      ))}
     </div>
-    <div className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed group-hover:translate-x-1 transition-transform duration-300">{children}</div>
-  </div>
-);
+  );
+}
+
+function SimpleTable({ rows }: { rows: { label: string, value: string, check?: boolean, cross?: boolean }[] }) {
+  return (
+    <div className="mx-6 mb-8 overflow-hidden rounded-[40px] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      {rows.map((row, i) => (
+        <div key={i} className="flex items-center justify-between p-5 border-b border-slate-50 dark:border-slate-800 last:border-0">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest w-2/3 leading-tight">{row.label}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">{row.value}</span>
+            {row.check && <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />}
+            {row.cross && <XCircle size={16} className="text-red-400 shrink-0" />}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Paragraph({ children, className, italic }: { children: React.ReactNode, className?: string, italic?: boolean }) {
+  return (
+    <p className={cn(
+      "px-6 mb-6 text-sm leading-relaxed",
+      italic ? "text-slate-500 dark:text-slate-400 italic" : "text-slate-600 dark:text-slate-400",
+      className
+    )}>{children}</p>
+  );
+}
+
+function HighlightCard({ children, variant = 'blue' }: { children: React.ReactNode, variant?: 'blue' | 'red' | 'dark' }) {
+  return (
+    <div className={cn(
+      "mx-6 my-8 p-8 rounded-[48px] border shadow-sm relative overflow-hidden",
+      variant === 'blue' && "bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/20",
+      variant === 'red' && "bg-red-50/50 dark:bg-red-500/5 border-red-100 dark:border-red-500/20",
+      variant === 'dark' && "bg-slate-900 text-white border-0 shadow-2xl"
+    )}>
+      {children}
+    </div>
+  );
+}
+
+function ListItem({ children, type = 'check', className }: { children: React.ReactNode, type?: 'check' | 'cross' | 'bullet', className?: string }) {
+  return (
+    <div className={cn("px-6 flex gap-4 mb-5 items-start group text-slate-400", className)}>
+      <div className={cn(
+        "w-7 h-7 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-500 group-hover:scale-110",
+        type === 'check' && "bg-emerald-500/10 text-emerald-500",
+        type === 'cross' && "bg-red-500/10 text-red-500",
+        type === 'bullet' && "bg-blue-500/10 text-blue-500"
+      )}>
+        {type === 'check' && <Check size={14} strokeWidth={3} />}
+        {type === 'cross' && <XCircle size={14} strokeWidth={3} />}
+        {type === 'bullet' && <ChevronRight size={14} strokeWidth={3} />}
+      </div>
+      <div className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed group-hover:translate-x-1 transition-transform duration-300">{children}</div>
+    </div>
+  );
+}
 
 function IntroVerbatim() {
   const [step, setStep] = React.useState(0);
@@ -682,7 +664,7 @@ function PositioningVerbatim() {
   );
 }
 
-const AudienceVerbatim = () => {
+function AudienceVerbatim() {
   const [step, setStep] = React.useState(0);
   const totalSteps = 3;
 
@@ -2217,6 +2199,41 @@ function GrowthVerbatim() {
   );
 }
 
+export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
+  const renderContent = () => {
+    switch (pageId) {
+      case 'content': return <ContentVerbatim />;
+      case 'intro': return <IntroVerbatim />;
+      case 'positioning': return <PositioningVerbatim />;
+      case 'audience': return <AudienceVerbatim />;
+      case 'product': return <ProductVerbatim />;
+      case 'funnel': return <FunnelVerbatim />;
+      case 'acquisition': return <AcquisitionVerbatim />;
+      case 'partners': return <PartnershipVerbatim />;
+      case 'ops': return <OpsVerbatim />;
+      case 'roadmap': return <RoadmapVerbatim />;
+      case 'growth': return <GrowthVerbatim />;
+      default: return <ContentVerbatim />;
+    }
+  };
+
+  return (
+    <div className="min-h-full pb-24 bg-slate-50/30 dark:bg-slate-950/30 font-sans">
+       <AnimatePresence mode="wait">
+          <motion.div
+            key={pageId}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          >
+            {renderContent()}
+          </motion.div>
+       </AnimatePresence>
+    </div>
+  );
+}
+
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center">
     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-[24px] flex items-center justify-center mb-6">
@@ -2226,3 +2243,4 @@ const PlaceholderPage = ({ title }: { title: string }) => (
     <p className="text-sm text-slate-500 max-w-[240px]">Контент в процессе портирования из MD документа.</p>
   </div>
 );
+
