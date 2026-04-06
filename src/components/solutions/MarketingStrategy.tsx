@@ -26,6 +26,7 @@ interface MarketingStrategyProps {
 export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
   const renderContent = () => {
     switch (pageId) {
+      case 'content': return <ContentVerbatim />;
       case 'intro': return <IntroVerbatim />;
       case 'positioning': return <PositioningVerbatim />;
       case 'audience': return <AudienceVerbatim />;
@@ -36,7 +37,7 @@ export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
       case 'ops': return <OpsVerbatim />;
       case 'roadmap': return <RoadmapVerbatim />;
       case 'growth': return <GrowthVerbatim />;
-      default: return <IntroVerbatim />;
+      default: return <ContentVerbatim />;
     }
   };
 
@@ -54,6 +55,74 @@ export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
           </motion.div>
        </AnimatePresence>
     </div>
+  );
+}
+
+// --- CHAPTER 0: ОГЛАВЛЕНИЕ ---
+function ContentVerbatim() {
+  return (
+    <>
+      <PageHeader title="Маркетинговая стратегия" subtitle="Smart Solutions — инвестиционная логика" />
+      
+      <div className="mx-6 mb-8 p-6 rounded-[40px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <h3 className="text-xs font-black uppercase text-blue-600 tracking-widest px-4">Цель стратегии</h3>
+            <div className="p-4 rounded-3xl bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10">
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Достижение устойчивой прибыли агентства ≥ 3 сделки в месяц / ≥ $10 000 чистой прибыли</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h3 className="text-xs font-black uppercase text-emerald-600 tracking-widest px-4">Условия</h3>
+            <div className="p-4 rounded-3xl bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10">
+               <div className="flex justify-between items-center mb-1">
+                 <span className="text-[10px] font-bold text-slate-500">Горизонт</span>
+                 <span className="text-[10px] font-black text-slate-900 dark:text-white">6–12 месяцев</span>
+               </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-[10px] font-bold text-slate-500">Рынок</span>
+                 <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Бали & Таиланд</span>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <HighlightCard variant="dark">
+        <p className="text-[10px] uppercase font-black text-slate-500 mb-4 tracking-[0.2em] text-center">Ключевая идея</p>
+        <h2 className="text-lg font-black italic tracking-tighter leading-tight text-white mb-4">
+           Smart Solutions — это не классическое агентство недвижимости.
+        </h2>
+        <p className="text-sm font-medium text-slate-400 leading-relaxed italic">
+          Это агентство, которое продает инвестиционную логику и стратегию, а объекты недвижимости использует как инструмент реализации целей инвестора.
+        </p>
+      </HighlightCard>
+
+      <SectionHeader title="Оглавление" />
+      <div className="mx-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {[
+          "1. Введение и контекст",
+          "2. Позиционирование Smart Solutions",
+          "3. Целевая аудитория и фокус",
+          "4. Продуктовая переупаковка",
+          "5. Воронка продаж нового типа",
+          "6. Каналы привлечения клиентов",
+          "7. Партнёрская модель",
+          "8. Операционка и контроль",
+          "9. План внедрения",
+          "10. Итоговая логика роста"
+        ].map((item, i) => (
+          <div key={i} className="group p-4 rounded-[24px] bg-white dark:bg-slate-900 border border-slate-50 dark:border-slate-800/50 hover:border-blue-200 dark:hover:border-blue-900 transition-all duration-300">
+            <div className="flex items-center gap-4">
+               <span className="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                 {i+1}
+               </span>
+               <p className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest leading-none truncate">{item.split('. ')[1]}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 

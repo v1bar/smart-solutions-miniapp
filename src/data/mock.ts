@@ -151,6 +151,7 @@ export const mockSolutions: Solution[] = [
     coverGradient: 'from-blue-600 via-indigo-500 to-violet-400',
     goalTag: '🎯 Рост агентства',
     pages: [
+      { id: 'content', title: '0. Оглавление', icon: 'List', sortOrder: 0, componentSlug: 'marketing-strategy' },
       { id: 'intro', title: '1. Контекст', icon: 'LayoutDashboard', sortOrder: 1, componentSlug: 'marketing-strategy' },
       { id: 'positioning', title: '2. Позиционирование', icon: 'Compass', sortOrder: 2, componentSlug: 'marketing-strategy' },
       { id: 'audience', title: '3. Аудитория', icon: 'Users', sortOrder: 3, componentSlug: 'marketing-strategy' },

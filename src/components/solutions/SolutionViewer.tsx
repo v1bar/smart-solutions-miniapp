@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Solution, SolutionPage } from '../../types';
-import { ArrowLeft, LayoutDashboard, BarChart3, Map, Users, Zap, ShieldCheck, Target, ArrowUpRight, Compass, Layers, BarChart4 } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, BarChart3, Map, Users, Zap, ShieldCheck, Target, ArrowUpRight, Compass, Layers, BarChart4, List } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { telegram } from '../../lib/telegram';
 import { ROICalculator } from '../magic_bricks/ROICalculator';
@@ -20,6 +20,7 @@ const iconMap: Record<string, React.ReactNode> = {
   ArrowUpRight: <ArrowUpRight size={18} />,
   Compass: <Compass size={18} />,
   Layers: <Layers size={18} />,
+  List: <List size={18} />,
 };
 
 interface SolutionViewerProps {
