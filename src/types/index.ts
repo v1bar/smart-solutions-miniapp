@@ -96,6 +96,7 @@ export interface AppUser {
   id: string;
   telegramId: number;
   name: string;
+  role: 'admin' | 'client';
   avatar?: string;
   goalText?: string;
   goalMetric?: string;

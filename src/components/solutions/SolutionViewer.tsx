@@ -4,6 +4,7 @@ import { ArrowLeft, LayoutDashboard, BarChart3, Map } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { telegram } from '../../lib/telegram';
 import { ROICalculator } from '../magic_bricks/ROICalculator';
+import { MarketingStrategy } from './MarketingStrategy';
 
 // Icon resolver
 const iconMap: Record<string, React.ReactNode> = {
@@ -28,6 +29,10 @@ function PageContent({ page }: { page: SolutionPage }) {
         <ROICalculator />
       </div>
     );
+  }
+
+  if (page.componentSlug === 'marketing-strategy') {
+    return <MarketingStrategy pageId={page.id} />;
   }
 
   return (

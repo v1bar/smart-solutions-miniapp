@@ -2,15 +2,15 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { AppShell } from './components/layout/AppShell';
 import { CheckupPage } from './components/checkup/CheckupPage';
 import { SolutionsPage } from './components/solutions/SolutionsPage';
-import { Audit, AuditAnswer, Solution } from './types';
+import { Audit, AuditAnswer, Solution, AppUser } from './types';
 import { telegram } from './lib/telegram';
 import { sendPulse } from './lib/sendpulse';
 import { loginOrRegister, fetchAudits, fetchSolutions, submitAudit } from './lib/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 
 function App() {
   const [isInitializing, setIsInitializing] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
   const [audits, setAudits] = useState<Audit[]>([]);
   const [solutions, setSolutions] = useState<Solution[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -36,7 +36,6 @@ function App() {
       } else {
         document.documentElement.classList.remove('dark');
       }
-      console.log('Telegram Theme Applied:', scheme);
     };
 
     applyTheme();
@@ -44,12 +43,12 @@ function App() {
 
     async function loadAppInfo() {
       try {
-        const uid = await loginOrRegister(tgId, { name: tgName });
-        setUserId(uid);
+        const user = await loginOrRegister(tgId, { name: tgName });
+        setCurrentUser(user);
         
         const [loadedAudits, loadedSolutions] = await Promise.all([
-          fetchAudits(uid),
-          fetchSolutions(uid),
+          fetchAudits(user.id),
+          fetchSolutions(user.id),
         ]);
 
         setAudits(loadedAudits);
@@ -69,9 +68,9 @@ function App() {
     };
   }, []);
 
-  // Handle audit completion: push to Supabase, then update local state
+  // Handle audit completion
   const handleAuditComplete = useCallback(async (auditId: string, answers: AuditAnswer[]) => {
-    if (!userId) return;
+    if (!currentUser) return;
     
     // Optimistic UI update
     setAudits((prev) =>
@@ -83,26 +82,24 @@ function App() {
     );
 
     try {
-      await submitAudit(userId, auditId, answers);
+      await submitAudit(currentUser.id, auditId, answers);
       
-      // Trigger notification via SendPulse
       const tgId = telegram.user?.id || 123456789;
       sendPulse.sendNotification(tgId, 'audit_completed', {
         audit_id: auditId,
-        user_id: userId
+        user_id: currentUser.id
       });
 
     } catch (err) {
       console.error('Failed to submit audit to DB:', err);
-      // Revert logically or notify user
     }
-  }, [userId]);
+  }, [currentUser]);
 
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
-        <p className="text-sm text-slate-500 font-medium">Загрузка платформы...</p>
+        <p className="text-sm text-slate-500 font-medium tracking-tight">Инициализация ClientOS...</p>
       </div>
     );
   }
@@ -110,13 +107,13 @@ function App() {
   if (fetchError) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="text-4xl mb-4">🥲</div>
+        <div className="text-4xl mb-4">🤫</div>
         <p className="text-sm text-red-500 font-medium mb-4">{fetchError}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl text-sm font-medium"
+          className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-sm font-semibold shadow-lg active:scale-95 transition-transform"
         >
-          Обновить
+          Попробовать снова
         </button>
       </div>
     );
@@ -126,18 +123,26 @@ function App() {
 
   return (
     <AppShell processingCount={processingCount}>
-      {(activeTab) => {
-        if (activeTab === 'checkup') {
-          return (
+      {(activeTab) => (
+        <div className="relative h-full">
+          {currentUser?.role === 'admin' && (
+            <div className="fixed top-4 right-4 z-[60] flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full backdrop-blur-md">
+              <ShieldCheck size={12} className="text-emerald-500" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Admin Access</span>
+            </div>
+          )}
+          
+          {activeTab === 'checkup' ? (
             <CheckupPage
               audits={audits}
-              userId={userId!}
+              userId={currentUser!.id}
               onAuditComplete={handleAuditComplete}
             />
-          );
-        }
-        return <SolutionsPage solutions={solutions} />;
-      }}
+          ) : (
+            <SolutionsPage solutions={solutions} />
+          )}
+        </div>
+      )}
     </AppShell>
   );
 }

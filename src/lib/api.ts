@@ -1,15 +1,13 @@
 import { supabase } from './supabase';
 import { Audit, AuditQuestion, AuditAnswer, Solution, SolutionPage, AppUser } from '../types';
 
-export async function loginOrRegister(telegramId: number, userProfile: Partial<AppUser>): Promise<string> {
+export async function loginOrRegister(telegramId: number, userProfile: Partial<AppUser>): Promise<AppUser> {
   // Upsert user based on telegramId
   const { data: user, error: selectError } = await supabase
     .from('users')
-    .select('id')
+    .select('*')
     .eq('telegram_id', telegramId)
     .single();
-
-  let userId = user?.id;
 
   if (selectError && selectError.code === 'PGRST116') {
     // Not found, insert
@@ -19,17 +17,31 @@ export async function loginOrRegister(telegramId: number, userProfile: Partial<A
         telegram_id: telegramId,
         first_name: userProfile.name,
         avatar_url: userProfile.avatar,
+        role: 'client' // Default role
       })
-      .select('id')
+      .select('*')
       .single();
 
     if (insertError) throw insertError;
-    userId = newUser.id;
+    
+    return {
+      id: newUser.id,
+      telegramId: newUser.telegram_id,
+      name: newUser.first_name,
+      role: newUser.role,
+      avatar: newUser.avatar_url
+    };
   } else if (selectError) {
     throw selectError;
   }
 
-  return userId;
+  return {
+    id: user.id,
+    telegramId: user.telegram_id,
+    name: user.first_name,
+    role: user.role,
+    avatar: user.avatar_url
+  };
 }
 
 export async function fetchAudits(userId: string): Promise<Audit[]> {

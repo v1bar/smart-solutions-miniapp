@@ -145,6 +145,20 @@ export const mockAudits: Audit[] = [
 
 export const mockSolutions: Solution[] = [
   {
+    id: 'sol-marketing-strategy',
+    title: 'Маркетинговая стратегия',
+    subtitle: 'План перехода к инвестиционной платформе',
+    coverGradient: 'from-blue-600 via-indigo-500 to-violet-400',
+    goalTag: '🎯 Рост агентства',
+    pages: [
+      { id: 'overview', title: 'Обзор', icon: 'LayoutDashboard', sortOrder: 1, componentSlug: 'marketing-strategy' },
+      { id: 'positioning', title: 'Позиционирование', icon: 'Compass', sortOrder: 2, componentSlug: 'marketing-strategy' },
+      { id: 'funnel', title: 'Воронка', icon: 'BarChart4', sortOrder: 3, componentSlug: 'marketing-strategy' },
+      { id: 'roadmap', title: 'Roadmap', icon: 'Map', sortOrder: 4, componentSlug: 'marketing-strategy' },
+    ],
+    createdAt: '2026-04-06',
+  },
+  {
     id: 'sol-funnel-optimization',
     title: 'Оптимизация воронки продаж',
     subtitle: 'Персональный план роста конверсии',
