@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Solution, SolutionPage } from '../../types';
-import { ArrowLeft, LayoutDashboard, BarChart3, Map } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, BarChart3, Map, Users, Zap, ShieldCheck, Target, ArrowUpRight, Compass, Layers, BarChart4 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { telegram } from '../../lib/telegram';
 import { ROICalculator } from '../magic_bricks/ROICalculator';
@@ -10,7 +10,15 @@ import { MarketingStrategy } from './MarketingStrategy';
 const iconMap: Record<string, React.ReactNode> = {
   LayoutDashboard: <LayoutDashboard size={18} />,
   BarChart3: <BarChart3 size={18} />,
+  BarChart4: <BarChart4 size={18} />,
   Map: <Map size={18} />,
+  Users: <Users size={18} />,
+  Zap: <Zap size={18} />,
+  ShieldCheck: <ShieldCheck size={18} />,
+  Target: <Target size={18} />,
+  ArrowUpRight: <ArrowUpRight size={18} />,
+  Compass: <Compass size={18} />,
+  Layers: <Layers size={18} />,
 };
 
 interface SolutionViewerProps {
