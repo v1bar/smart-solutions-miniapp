@@ -83,6 +83,20 @@ const Card = ({ children, className, accent }: { children: React.ReactNode, clas
   </div>
 );
 
+const Badge = ({ children, variant = 'blue' }: { children: React.ReactNode, variant?: 'blue' | 'red' | 'emerald' | 'amber' }) => {
+  const variants = {
+    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border-blue-100 dark:border-blue-500/20',
+    red: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 border-red-100 dark:border-red-500/20',
+    emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
+    amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  };
+  return (
+    <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", variants[variant])}>
+      {children}
+    </span>
+  );
+};
+
 const Table = ({ rows }: { rows: { label: string, value: string | React.ReactNode, status?: 'yes' | 'no' }[] }) => (
   <div className="mx-5 mb-6 overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50">
     {rows.map((row, i) => (
