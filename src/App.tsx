@@ -6,6 +6,7 @@ import { Audit, AuditAnswer, Solution, AppUser } from './types';
 import { telegram } from './lib/telegram';
 import { sendPulse } from './lib/sendpulse';
 import { loginOrRegister, fetchAudits, fetchSolutions, submitAudit } from './lib/api';
+import { mockSolutions } from './data/mock';
 import { Loader2, ShieldCheck } from 'lucide-react';
 
 function App() {
@@ -46,13 +47,21 @@ function App() {
         const user = await loginOrRegister(tgId, { name: tgName });
         setCurrentUser(user);
         
-        const [loadedAudits, loadedSolutions] = await Promise.all([
+        const [loadedAudits, dbSolutions] = await Promise.all([
           fetchAudits(user.id),
           fetchSolutions(user.id),
         ]);
 
         setAudits(loadedAudits);
-        setSolutions(loadedSolutions);
+        
+        // Merge DB solutions with mock solutions (unique by id)
+        const combinedSolutions = [...dbSolutions];
+        mockSolutions.forEach((mock: Solution) => {
+          if (!combinedSolutions.find(s => s.id === mock.id)) {
+            combinedSolutions.push(mock);
+          }
+        });
+        setSolutions(combinedSolutions);
       } catch (err: any) {
         console.error('Error loading app data:', err);
         setFetchError('Не удалось загрузить данные. Проверьте соединение.');
@@ -124,7 +133,7 @@ function App() {
   return (
     <AppShell processingCount={processingCount}>
       {(activeTab) => (
-        <div className="relative h-full">
+        <div className="relative h-full animate-in fade-in duration-500">
           {currentUser?.role === 'admin' && (
             <div className="fixed top-4 right-4 z-[60] flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full backdrop-blur-md">
               <ShieldCheck size={12} className="text-emerald-500" />
