@@ -1,25 +1,19 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Target, 
-  Compass, 
-  Users, 
-  Zap, 
-  ArrowUpRight, 
-  BarChart4, 
-  Layers, 
-  ShieldCheck, 
-  Map,
   CheckCircle2,
   XCircle,
-  TrendingUp,
   AlertCircle,
-  Search,
-  MessageSquare,
+  ArrowRight,
+  TrendingUp,
+  Target,
+  Users,
+  Layers,
+  Zap,
   Network,
-  Activity,
-  Lightbulb,
-  FileText
+  ShieldCheck,
+  Map,
+  ArrowUpRight
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
@@ -30,554 +24,607 @@ interface MarketingStrategyProps {
 export function MarketingStrategy({ pageId }: MarketingStrategyProps) {
   const renderContent = () => {
     switch (pageId) {
-      case 'intro': return <IntroSection />;
-      case 'positioning': return <PositioningSection />;
-      case 'audience': return <AudienceSection />;
-      case 'product': return <ProductSection />;
-      case 'funnel': return <FunnelSection />;
-      case 'acquisition': return <AcquisitionSection />;
-      case 'partners': return <PartnersSection />;
-      case 'ops': return <OpsSection />;
-      case 'roadmap': return <RoadmapSection />;
-      case 'growth': return <GrowthSection />;
-      default: return <IntroSection />;
+      case 'intro': return <IntroVerbatim />;
+      case 'positioning': return <PositioningVerbatim />;
+      case 'audience': return <AudienceVerbatim />;
+      case 'product': return <ProductVerbatim />;
+      case 'funnel': return <FunnelVerbatim />;
+      case 'acquisition': return <AcquisitionVerbatim />;
+      case 'partners': return <PartnersVerbatim />;
+      case 'ops': return <OpsVerbatim />;
+      case 'roadmap': return <RoadmapVerbatim />;
+      case 'growth': return <GrowthVerbatim />;
+      default: return <IntroVerbatim />;
     }
   };
 
   return (
-    <div className="min-h-full pb-10">
-      {renderContent()}
+    <div className="min-h-full pb-24">
+       <AnimatePresence mode="wait">
+          <motion.div
+            key={pageId}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            {renderContent()}
+          </motion.div>
+       </AnimatePresence>
     </div>
   );
 }
 
-// --- SHARED UI COMPONENTS (ZENLABS DNA) ---
+// --- VERBATIM COMPONENTS ---
 
-const Card = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    className={cn("bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm", className)}
-  >
-    {children}
-  </motion.div>
-);
-
-const Badge = ({ children, variant = 'blue' }: { children: React.ReactNode, variant?: 'blue' | 'red' | 'emerald' | 'amber' }) => {
-  const variants = {
-    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border-blue-100 dark:border-blue-500/20',
-    red: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 border-red-100 dark:border-red-500/20',
-    emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
-    amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+const Header = ({ children, level = 1 }: { children: React.ReactNode, level?: 1 | 2 | 3 | 4 }) => {
+  const styles = {
+    1: "text-2xl font-black text-slate-900 dark:text-white px-5 pt-8 mb-6 tracking-tight leading-tight uppercase",
+    2: "text-xl font-bold text-slate-900 dark:text-white px-5 mt-10 mb-4 tracking-tight",
+    3: "text-lg font-bold text-slate-800 dark:text-slate-200 px-5 mt-8 mb-4 border-l-4 border-blue-600 pl-4",
+    4: "text-base font-bold text-slate-700 dark:text-slate-300 px-5 mt-6 mb-3",
   };
-  return (
-    <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", variants[variant])}>
-      {children}
-    </span>
-  );
+  return <h2 className={styles[level]}>{children}</h2>;
 };
 
-const SectionTitle = ({ title, subtitle }: { title: string, subtitle?: string }) => (
-  <div className="px-5 pt-4 mb-6">
-    <h2 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight tracking-tight">{title}</h2>
-    {subtitle && <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">{subtitle}</p>}
+const Text = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <p className={cn("text-sm text-slate-600 dark:text-slate-400 px-5 mb-4 leading-relaxed", className)}>{children}</p>
+);
+
+const Card = ({ children, className, accent }: { children: React.ReactNode, className?: string, accent?: 'blue' | 'red' | 'emerald' }) => (
+  <div className={cn(
+    "mx-5 my-4 p-6 rounded-[32px] border bg-white dark:bg-slate-900 shadow-sm",
+    accent === 'blue' && "border-blue-100 dark:border-blue-900/50 bg-blue-50/10",
+    accent === 'red' && "border-red-100 dark:border-red-900/50 bg-red-50/10",
+    accent === 'emerald' && "border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/10",
+    className
+  )}>
+    {children}
   </div>
 );
 
-const TableRow = ({ label, value, status }: { label: string, value: string, status?: 'yes' | 'no' }) => (
-  <div className="flex items-center justify-between py-3 border-b border-slate-50 dark:border-slate-800 last:border-0">
-    <span className="text-sm text-slate-600 dark:text-slate-400">{label}</span>
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-bold text-slate-900 dark:text-white text-right">{value}</span>
-      {status === 'yes' && <CheckCircle2 size={16} className="text-emerald-500" />}
-      {status === 'no' && <XCircle size={16} className="text-red-400" />}
-    </div>
+const Table = ({ rows }: { rows: { label: string, value: string | React.ReactNode, status?: 'yes' | 'no' }[] }) => (
+  <div className="mx-5 mb-6 overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+    {rows.map((row, i) => (
+      <div key={i} className="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-800 last:border-0">
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider w-1/2">{row.label}</span>
+        <div className="flex items-center gap-2 w-1/2 justify-end">
+          <span className="text-sm font-bold text-slate-900 dark:text-white text-right">{row.value}</span>
+          {row.status === 'yes' && <CheckCircle2 size={16} className="text-emerald-500" />}
+          {row.status === 'no' && <XCircle size={16} className="text-red-400" />}
+        </div>
+      </div>
+    ))}
   </div>
 );
 
-// --- SECTIONS ---
-
-function IntroSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Введение и контекст" subtitle="Агентство недвижимости с фокусом на инвест-продажи" />
-      
-      <div className="px-5 grid grid-cols-1 gap-4">
-        <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-0 shadow-xl shadow-blue-600/20">
-          <Target className="mb-4 opacity-50" size={28} />
-          <h3 className="text-sm font-bold uppercase tracking-widest opacity-80 mb-2">Цель стратегии</h3>
-          <p className="text-2xl font-bold leading-tight">≥ 3 сделки в месяц / ≥ $10 000 чистой прибыли</p>
-          <div className="mt-4 pt-4 border-t border-white/10 flex gap-4">
-            <div>
-              <p className="text-[10px] uppercase opacity-60">Рынок</p>
-              <p className="text-xs font-bold font-mono uppercase">Бали / Тайланд</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase opacity-60">Горизонт</p>
-              <p className="text-xs font-bold font-mono">6–12 месяцев</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
-              <AlertCircle size={18} className="text-amber-500" />
-            </div>
-            <h3 className="font-bold text-slate-900 dark:text-white">Текущие ограничения</h3>
-          </div>
-          <div className="space-y-1">
-            <TableRow label="Стадия бизнеса" value="Агентство" status="yes" />
-            <TableRow label="Ресурсы команды" value="Ограничены" status="yes" />
-            <TableRow label="Фокус на прибыль" value="Максимальный" status="yes" />
-            <TableRow label="Массовый B2C" value="Исключен" status="no" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-900 dark:bg-slate-950 text-white">
-          <h3 className="text-lg font-bold mb-3 italic">"Smart Solutions — это не классическое агентство."</h3>
-          <p className="text-sm text-slate-400 leading-relaxed">
-            Мы продаем инвестиционную логику и стратегию, а объекты недвижимости используем как инструмент реализации целей инвестора.
-          </p>
-        </Card>
-      </div>
+const ComparisonTable = ({ headers, rows }: { headers: [string, string], rows: [string, string][] }) => (
+  <div className="mx-5 mb-6 overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div className="grid grid-cols-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800">
+       <div className="p-4 text-xs font-black uppercase text-slate-400 text-center border-r border-slate-200 dark:border-slate-800 tracking-tighter">{headers[0]}</div>
+       <div className="p-4 text-xs font-black uppercase text-blue-600 text-center tracking-tighter">{headers[1]}</div>
     </div>
-  );
-}
+    {rows.map((row, i) => (
+       <div key={i} className="grid grid-cols-2 border-b border-slate-50 dark:border-slate-800 last:border-0 bg-white dark:bg-slate-900">
+          <div className="p-4 text-xs text-slate-500 dark:text-slate-400 border-r border-slate-50 dark:border-slate-800 flex items-center justify-center text-center leading-tight">{row[0]}</div>
+          <div className="p-4 text-xs text-slate-900 dark:text-white font-bold flex items-center justify-center text-center leading-tight bg-blue-50/20 dark:bg-blue-500/5">{row[1]}</div>
+       </div>
+    ))}
+  </div>
+);
 
-function PositioningSection() {
+// --- CHAPTER 1: INTRO ---
+function IntroVerbatim() {
   return (
-    <div className="space-y-6">
-      <SectionTitle title="Позиционирование" subtitle="Кратный рост через смену парадигмы" />
+    <>
+      <Header level={1}>Введение и контекст</Header>
       
-      <div className="px-5 space-y-4">
-        <Card>
-          <Badge variant="red">Проблема</Badge>
-          <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white leading-tight">Красный океан классики</h3>
-          <p className="text-sm text-slate-500 mt-2">Конкуренция ценой лида, характеристиками объектов и скоростью «дожима».</p>
-          
-          <div className="mt-6 flex flex-col gap-3">
-             {['Продажа объектов', 'Массовый трафик', 'Холодные лиды', 'Отдел продаж = фильтр'].map((text, i) => (
-               <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                 <XCircle size={14} className="text-red-400" />
-                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{text}</span>
-               </div>
-             ))}
-          </div>
-        </Card>
-
-        <div className="flex justify-center -my-2 relative z-10">
-          <div className="bg-blue-600 text-white rounded-full p-2 shadow-lg">
-            <TrendingUp size={20} />
-          </div>
-        </div>
-
-        <Card className="border-blue-200 dark:border-blue-500/30">
-          <Badge variant="emerald">Решение</Badge>
-          <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white leading-tight">Smart Solutions DNA</h3>
-          <p className="text-sm text-slate-500 mt-2">Конкуренция ясностью, доверием и качеством принятия решений.</p>
-          
-          <div className="mt-6 flex flex-col gap-3">
-             {['Продажа инвест-логики', 'Фильтрованное привлечение', 'Доверие и рекомендации', 'Маркетинг = фильтр'].map((text, i) => (
-               <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-blue-50/50 dark:bg-blue-500/10 border border-blue-100/50 dark:border-blue-500/20">
-                 <CheckCircle2 size={14} className="text-emerald-500" />
-                 <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{text}</span>
-               </div>
-             ))}
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function AudienceSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Целевая аудитория" subtitle="Кого мы обслуживаем осознанно" />
+      <Header level={4}>1.1. Задача стратегии и бизнес-цели агентства</Header>
+      <Text>Что именно должна изменить эта маркетинговая стратегия в бизнесе Smart Solutions?</Text>
       
-      <div className="px-5 space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="text-center">
-            <Users className="mx-auto text-blue-600 mb-2" size={24} />
-            <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400">B2C</h4>
-            <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-tight">Инвестор</p>
-            <p className="text-[10px] text-slate-500 mt-1 uppercase">Дает сделки</p>
-          </Card>
-          <Card className="text-center">
-            <Network className="mx-auto text-emerald-500 mb-2" size={24} />
-            <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400">B2B</h4>
-            <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-tight">Партнер</p>
-            <p className="text-[10px] text-slate-500 mt-1 uppercase">Дает масштаб</p>
-          </Card>
-        </div>
-
-        <Card>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Инвестиционные цели</h3>
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Пассивный доход</span>
-                <Badge>Cash-flow</Badge>
-              </div>
-              <p className="text-xs text-slate-500">Страх потери стабильности / Желание регулярных выплат в $</p>
-            </div>
-            <div className="h-px bg-slate-50 dark:bg-slate-800" />
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Рост капитала</span>
-                <Badge variant="amber">Grow</Badge>
-              </div>
-              <p className="text-xs text-slate-500">FOMO / Желание заработать быстро на перепродаже</p>
-            </div>
-            <div className="h-px bg-slate-50 dark:bg-slate-800" />
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Защита активов</span>
-                <Badge variant="emerald">Safe</Badge>
-              </div>
-              <p className="text-xs text-slate-500">Страх волатильности / Потребность в «тихой гавани»</p>
-            </div>
-          </div>
-        </Card>
-
-        <div className="bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-3xl p-6">
-          <div className="flex items-center gap-2 text-red-500 mb-2">
-            <XCircle size={18} />
-            <span className="text-sm font-bold uppercase tracking-widest">Anti-CLient</span>
-          </div>
-          <p className="text-xs text-slate-600 dark:text-red-400 leading-relaxed font-medium">
-            Покупатели «для жизни», без бюджета, эмоциональные покупки («хочу виллу, потому что красиво»), искатели быстрых денег без рисков.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProductSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Продуктовая переупаковка" subtitle="Объект → Инвестиционный кейс" />
+      <Table rows={[
+        { label: "Кол-во продаж", value: "≥ 3 сделки / мес" },
+        { label: "Чистая прибыль", value: "$10 000+ / мес" }
+      ]} />
       
-      <div className="px-5 space-y-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Layers size={80} />
-          </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Сценарий заработка</h3>
-          <div className="space-y-8 relative">
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">1</div>
-              <div>
-                <h4 className="text-sm font-bold">Инвест-цель</h4>
-                <p className="text-xs text-slate-500 underline decoration-blue-500/30 underline-offset-4">Зачем входить в сделку?</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">2</div>
-              <div>
-                <h4 className="text-sm font-bold">Инвест-стратегия</h4>
-                <p className="text-xs text-slate-500 underline decoration-blue-500/30 underline-offset-4">Как это реализуется?</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">3</div>
-              <div>
-                <h4 className="text-sm font-bold">Объект = Инструмент</h4>
-                <p className="text-xs text-slate-500 underline decoration-blue-500/30 underline-offset-4">За счет чего это произойдет?</p>
-              </div>
-            </div>
-          </div>
-        </Card>
+      <Text className="italic font-medium text-slate-900 dark:text-white">
+        "Маркетинговая стратегия разрабатывается как инструмент достижения конкретного бизнес-результата."
+      </Text>
 
-        <Card>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Матрица стратегий</h3>
-          <div className="space-y-4">
-             <div className="flex p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold">Capital Growth</p>
-                  <p className="text-[10px] text-slate-500 leading-none">Первичка / Флиппинг</p>
-                </div>
-                <ArrowUpRight size={16} className="text-blue-600" />
+      <Header level={4}>1.2. Ограничения и допущения</Header>
+      <Table rows={[
+        { label: "Стадия агентского бизнеса", value: "Yes", status: "yes" },
+        { label: "Ограниченные ресурсы", value: "Yes", status: "yes" },
+        { label: "Рынок Бали (основной)", value: "Yes", status: "yes" },
+        { label: "Роль AI в аналитике", value: "No", status: "no" },
+        { label: "Масштаб через фонды", value: "No", status: "no" },
+        { label: "Массовый B2C маркетинг", value: "No", status: "no" },
+      ]} />
+
+      <Header level={4}>1.3. Почему текущая модель не масштабируется</Header>
+      <Card accent="red">
+        <p className="text-xs text-red-600 font-bold uppercase mb-2">Проблема:</p>
+        <p className="text-sm">Прямой трафик, оффер «объекты», последующая фильтрация лидов.</p>
+      </Card>
+      
+      <ul className="mx-5 space-y-4 mb-8">
+        {[
+          { t: "Низкая концентрация ЦА в платном трафике", d: "Инвесторы принимают решения через доверие и рекомендации, а не через оффер в ленте." },
+          { t: "Перегретый красный океан", d: "Рынок переполнен одинаковыми смыслами и креативами, конкуренция идет ценой лида." },
+          { t: "Несоответствие продукта и воронки", d: "Декларируем партнерство, но продаем как обычное агентство с каталогом объектов." }
+        ].map((item, i) => (
+          <li key={i} className="flex gap-3">
+             <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+             <div>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">{item.t}</p>
+                <p className="text-xs text-slate-500 mt-1">{item.d}</p>
              </div>
-             <div className="flex p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold">Cash-Flow</p>
-                  <p className="text-[10px] text-slate-500 leading-none">Вторичка / Готовое</p>
-                </div>
-                <Activity size={16} className="text-emerald-500" />
-             </div>
-             <div className="flex p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold">Hybrid / SPV</p>
-                  <p className="text-[10px] text-slate-500 leading-none">Коллективные инвестиции</p>
-                </div>
-                <Network size={16} className="text-amber-500" />
-             </div>
-          </div>
-        </Card>
-      </div>
-    </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
-function FunnelSection() {
+// --- CHAPTER 2: POSITIONING ---
+function PositioningVerbatim() {
   return (
-    <div className="space-y-6">
-      <SectionTitle title="Воронка продаж" subtitle="От хаоса к управляемой диагностике" />
+    <>
+      <Header level={1}>Позиционирование</Header>
       
-      <div className="px-5 space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
-              <Search size={20} />
-            </div>
-            <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
-               <h4 className="text-sm font-bold">Диагностика</h4>
-               <p className="text-xs text-slate-500">Определение целей, риск-профиля и бюджета. Точка невозврата.</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center py-1">
-             <div className="w-0.5 h-6 bg-slate-100 dark:bg-slate-800" />
-          </div>
-          <div className="flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
-              <Lightbulb size={20} />
-            </div>
-            <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
-               <h4 className="text-sm font-bold">Решение</h4>
-               <p className="text-xs text-slate-500">Формирование инвест-кейсов под конкретную стратегию.</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center py-1">
-             <div className="w-0.5 h-6 bg-slate-100 dark:bg-slate-800" />
-          </div>
-          <div className="flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-lg shrink-0 group-hover:scale-110 transition-transform">
-              <Zap size={20} />
-            </div>
-            <div className="flex-1 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
-               <h4 className="text-sm font-bold">Сделка</h4>
-               <p className="text-xs text-slate-500">Сопровождение в роли Investment Manager.</p>
-            </div>
-          </div>
-        </div>
-
-        <Card>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Роль менеджера</h3>
-          <div className="grid grid-cols-2 gap-4">
-             <div className="p-4 rounded-2xl bg-red-500/5 space-y-2 opacity-60">
-                <p className="text-[10px] font-bold uppercase text-red-500">Было: Агент</p>
-                <p className="text-xs">Продает объект «как есть». Давит на эмоции. Реактивный.</p>
-             </div>
-             <div className="p-4 rounded-2xl bg-emerald-500/10 space-y-2">
-                <p className="text-[10px] font-bold uppercase text-emerald-500">Стало: Int. Manager</p>
-                <p className="text-xs">Проектирует кейс. Работает по алгоритму. Управляет процессом.</p>
-             </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function AcquisitionSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Каналы привлечения" subtitle="Уход от красного океана" />
+      <Header level={4}>2.1. Кто мы для инвестора</Header>
+      <Card accent="blue">
+        <p className="text-sm font-bold leading-relaxed">
+          Smart Solutions — это инвестиционный партнер на входе в сделку, а не классический брокер недвижимости.
+        </p>
+      </Card>
       
-      <div className="px-5 space-y-4">
-        <Card className="border-emerald-200 dark:border-emerald-500/30">
-          <Badge variant="emerald">Primary</Badge>
-          <h3 className="text-lg font-bold mt-3 mb-2">Партнерский маркетинг</h3>
-          <p className="text-sm text-slate-500 leading-relaxed mb-6">
-            Безусловный фокус. Весь рост масштабируется через доверие и рекомендации партнерских сетей.
-          </p>
-          <div className="space-y-2">
-            <TableRow label="Доверие" value="Высокое" status="yes" />
-            <TableRow label="Квалификация" value="Высокая" status="yes" />
-            <TableRow label="CAC" value="Результат" status="yes" />
-          </div>
-        </Card>
-
-        <Card className="opacity-80">
-          <Badge variant="blue">Secondary</Badge>
-          <h3 className="text-lg font-bold mt-3 mb-2">Экспертность и SMM</h3>
-          <p className="text-sm text-slate-500 leading-relaxed">
-            Слой доверия. Публичные эфиры, видео-кейсы и личный бренд как подтверждение методологии.
-          </p>
-        </Card>
-
-        <Card className="opacity-50 border-dashed">
-          <Badge variant="red">Auxiliary</Badge>
-          <h3 className="text-lg font-bold mt-3 mb-2">Платный трафик</h3>
-          <p className="text-sm text-slate-500 leading-relaxed">
-            Только поддержка. Прогрев, дожим ретаргетингом и тест гипотез. Не является драйвером сделок.
-          </p>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function PartnersSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Партнерская модель" subtitle="Механика масштабирования доверия" />
-      
-      <div className="px-5 space-y-6">
-        <Card>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Типы партнеров</h3>
-          <div className="space-y-3">
-             {[
-               { name: 'Инвест-клубы', desc: 'Массовый поток частных инвесторов', check: '$350k+' },
-               { name: 'Предприниматели', desc: 'Сделки под капитализацию', check: '$350k+' },
-               { name: 'Private Banking', desc: 'Клиенты с очень высоким чеком', check: '$500k+' },
-               { name: 'Фин. советники', desc: 'Клиенты под диверсификацию', check: '$250k+' },
-             ].map((p, i) => (
-               <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
-                  <div className="flex-1">
-                    <p className="text-sm font-bold">{p.name}</p>
-                    <p className="text-[10px] text-slate-500">{p.desc}</p>
-                  </div>
-                  <Badge variant="blue">{p.check}</Badge>
-               </div>
-             ))}
-          </div>
-        </Card>
-
-        <Card className="bg-slate-900 text-white border-0">
-          <h3 className="font-bold mb-4">Что мы даем партнеру:</h3>
-          <ul className="space-y-3">
-            {['Готовая методология инвест-продаж', 'Шаблоны кейсов и стратегий', 'Комиссия выше рынка', 'Поддержка эксперта на сделке'].map((text, i) => (
-              <li key={i} className="flex items-center gap-3 text-xs leading-tight opacity-90">
-                <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> {text}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function OpsSection() {
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="Операционка" subtitle="Управление по метрикам" />
-      
-      <div className="px-5 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Главная метрика</p>
-            <p className="text-xl font-black text-blue-600">CPLQ</p>
-            <p className="text-xs text-slate-500 mt-2 font-medium">Cost per Qualified Lead — инвестор с целью, бюджетом и риск-профилем.</p>
-          </Card>
-          <Card>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Финальная цель</p>
-            <p className="text-xl font-black text-slate-900 dark:text-white">ROI 100%+</p>
-            <p className="text-xs text-slate-500 mt-2 font-medium">Экономика каждой сделки должна окупать привлечение минимум в 5 раз.</p>
-          </Card>
-        </div>
-
-        <Card>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">AI в системе</h3>
-          <div className="space-y-4">
-             <div className="flex items-start gap-4 p-4 rounded-3xl bg-indigo-50/50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20">
-                <MessageSquare className="text-indigo-600 shrink-0 mt-1" size={18} />
-                <div>
-                   <p className="text-xs font-bold">Контроль качества</p>
-                   <p className="text-[10px] text-slate-500 mt-1">AI анализирует звонки менеджеров на соответствие роли Investment Manager.</p>
-                </div>
-             </div>
-             <div className="flex items-start gap-4 p-4 rounded-3xl bg-blue-50/50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20">
-                <TrendingUp className="text-blue-600 shrink-0 mt-1" size={18} />
-                <div>
-                   <p className="text-xs font-bold">Масштаб контента</p>
-                   <p className="text-[10px] text-slate-500 mt-1">Генерация инвестиционных офферов и кейсов без участия эксперта 24/7.</p>
-                </div>
-             </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function RoadmapSection() {
-  const steps = [
-    { time: '30 дней', title: 'Фундамент', desc: 'Финализация позиционирования, переупаковка 5 топовых кейсов и первые 3 партнера.' },
-    { time: '60 дней', title: 'Ускорение', desc: 'SMM-воронка, эфиры с партнерами, внедрение CRM-скоринга.' },
-    { time: '90 дней', title: 'Системность', desc: 'AI-архитектура, повторяемая модель сделок, выход на 3 сделки/мес.' },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <SectionTitle title="План внедрения" subtitle="Приоритеты волнового роста" />
-      
-      <div className="px-5 space-y-12 py-6 relative">
-        <div className="absolute left-[39px] top-10 bottom-10 w-0.5 bg-slate-100 dark:bg-slate-800" />
-        {steps.map((step, i) => (
-          <div key={i} className="flex gap-6 relative">
-            <div className="w-12 h-12 rounded-3xl bg-white dark:bg-slate-900 border-2 border-blue-600 flex items-center justify-center text-blue-600 font-bold text-xs shadow-xl shrink-0 z-10">
-              {i + 1}
-            </div>
-            <div className="pt-2">
-               <Badge>{step.time}</Badge>
-               <h4 className="text-lg font-bold mt-2 text-slate-900 dark:text-white">{step.title}</h4>
-               <p className="text-xs text-slate-500 mt-1 leading-relaxed">{step.desc}</p>
-            </div>
+      <Text>Наши роли для инвестора:</Text>
+      <div className="mx-5 grid grid-cols-1 gap-2 mb-6">
+        {['навигатор по рынку', 'фильтр инвест-решений', 'переводчик недвижимости в язык целей'].map((t, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+             <CheckCircle2 size={16} className="text-blue-500" />
+             <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t}</span>
           </div>
         ))}
       </div>
-    </div>
+
+      <Header level={4}>2.2. Что мы продаем на самом деле</Header>
+      <Text>Формально мы продаём недвижимость. Фактически мы продаём инвестиционную логику.</Text>
+      <Card className="bg-slate-900 text-white border-0">
+         <p className="text-xs opacity-60 uppercase font-bold tracking-widest mb-3">Наш продукт:</p>
+         <ul className="space-y-4">
+            <li className="text-sm font-medium">Сценарий достижения инвестиционной цели</li>
+            <li className="text-sm font-medium">Объяснение, за счет чего формируется доход</li>
+            <li className="text-sm font-medium">Понимание рисков и альтернатив</li>
+         </ul>
+      </Card>
+
+      <Header level={4}>2.3. Инвестиционное vs Классическое агентство</Header>
+      <ComparisonTable 
+        headers={["Классика", "Smart Solutions"]}
+        rows={[
+          ["Продажа объектов", "Продажа решений"],
+          ["Характеристики объекта", "Цели инвестора"],
+          ["Маркетинговые хуки", "Инвестиционная логика"],
+          ["Широкая аудитория", "Отфильтрованная ЦА"],
+          ["Массовый трафик", "Доверие и экспертиза"]
+        ]}
+      />
+
+      <Header level={4}>2.4. Преимущества позиционирования</Header>
+      <div className="px-5 space-y-4 mb-8">
+        {[
+          { t: "Сложно скопировать", d: "Методология и алгоритм работы не покупаются «с рынка»." },
+          { t: "Снижение зависимости от рекламы", d: "Партнерка и экспертность становятся эффективнее." },
+          { t: "Выше качество клиентов", d: "Доходят те, кто готов думать категориями стратегии." },
+          { t: "Выше маржинальность", d: "Конкурируем ценностью решения, а не комиссией." }
+        ].map((item, i) => (
+          <div key={i} className="p-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/50">
+             <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">{item.t}</p>
+             <p className="text-xs text-slate-500 mt-1">{item.d}</p>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
-function GrowthSection() {
+// --- CHAPTER 3: AUDIENCE ---
+function AudienceVerbatim() {
   return (
-    <div className="space-y-6">
-      <SectionTitle title="Итоговая логика" subtitle="Агентство как фундамент экосистемы" />
+    <>
+      <Header level={1}>Целевая аудитория</Header>
       
-      <div className="px-5 space-y-4">
-        <div className="bg-slate-900 dark:bg-white p-8 rounded-[40px] text-white dark:text-slate-900">
-           <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2 text-center">Vision 2026</p>
-           <h3 className="text-2xl font-black text-center leading-tight tracking-tight">От Агентства к Инвест-Платформе</h3>
-           <p className="text-sm text-center mt-4 opacity-80 leading-relaxed font-medium">
-             Агентство делает 3+ сделки/мес, формирует кешфлоу и базу инвесторов → Переход к ко-девелопменту и фондовым инструментам.
-           </p>
-        </div>
-
-        <Card>
-           <h3 className="text-sm font-bold uppercase mb-4 text-center">Роль агентства сейчас</h3>
-           <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1 text-center border-r border-slate-50 dark:border-slate-800">
-                 <p className="text-xs font-bold text-blue-600">Деньги</p>
-                 <p className="text-[10px] text-slate-400 leading-tight">Cash-Flow на эксперименты</p>
-              </div>
-              <div className="space-y-1 text-center">
-                 <p className="text-xs font-bold text-emerald-500">Доверие</p>
-                 <p className="text-[10px] text-slate-400 leading-tight">База инвесторов</p>
-              </div>
-              <div className="space-y-1 text-center border-r border-slate-50 dark:border-slate-800 pt-3 mt-3 border-t">
-                 <p className="text-xs font-bold text-amber-500">Продукт</p>
-                 <p className="text-[10px] text-slate-400 leading-tight">Проверка стратегий</p>
-              </div>
-              <div className="space-y-1 text-center pt-3 mt-3 border-t border-slate-50 dark:border-slate-800">
-                 <p className="text-xs font-bold text-slate-900 dark:text-white">Данные</p>
-                 <p className="text-[10px] text-slate-400 leading-tight">Реальный спрос</p>
-              </div>
-           </div>
-        </Card>
-
-        <Card className="bg-blue-600 text-white border-0 shadow-xl shadow-blue-600/30 py-8">
-           <h3 className="text-center font-bold text-lg mb-2">Готовы к внедрению!</h3>
-           <p className="text-center text-xs opacity-80 px-4 leading-relaxed">
-             Эта стратегия выводит агентство из конкуренции за объекты и закладывает фундамент для глобальной платформы Smart Solutions.
-           </p>
-        </Card>
+      <Header level={4}>3.1. Кого мы обслуживаем осознанно</Header>
+      <Text>Наш клиент — рациональный инвестор, принимающий решения на основе целей, цифр и логики.</Text>
+      
+      <div className="mx-5 space-y-3 mb-6">
+        {[
+          "Частные инвесторы с капиталом",
+          "Предприниматели и топ-менеджеры",
+          "Инвесторы с опытом на других рынках"
+        ].map((t, i) => (
+          <div key={i} className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl">
+             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{t}</span>
+             <CheckCircle2 size={16} className="text-emerald-500" />
+          </div>
+        ))}
       </div>
-    </div>
+
+      <Header level={4}>3.2. С кем мы не работаем</Header>
+      <div className="mx-5 space-y-3 mb-6">
+        {[
+          "Покупатели «для жизни» без инвест-цели",
+          "Клиенты без определенного бюджета",
+          "Эмоциональные покупки («хочу виллу»)",
+          "Искатели быстрых денег без риска"
+        ].map((t, i) => (
+          <div key={i} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl opacity-60">
+             <span className="text-xs text-slate-600 dark:text-slate-400">{t}</span>
+             <XCircle size={16} className="text-red-400" />
+          </div>
+        ))}
+      </div>
+
+      <Header level={4}>3.3. B2C и B2B логика</Header>
+      <Text>B2C дает сделки, B2B дает масштаб.</Text>
+      <ComparisonTable 
+        headers={["B2C", "B2B"]}
+        rows={[
+          ["Инвестор", "Партнер"],
+          ["Сценарии и кейсы", "Экспертиза + комиссия"],
+          ["Сделка", "Поток инвесторов"],
+          ["Ограниченный масштаб", "Высокий масштаб"]
+        ]}
+      />
+
+      <Header level={4}>3.4. Ключевые инвестиционные цели</Header>
+      <div className="mx-5 space-y-4 mb-8">
+        {[
+          { c: "Стабильный пассивный доход", d: "Регулярный Cash-flow в $, минимальный риск." },
+          { c: "Рост капитала", d: "Приумножение через рост цены актива (Первичка)." },
+          { c: "Диверсификация и защита", d: "Снижение зависимости от одного рынка или валюты." }
+        ].map((item, i) => (
+          <Card key={i}>
+             <p className="text-xs font-black uppercase text-blue-600 mb-1">{item.c}</p>
+             <p className="text-sm font-medium">{item.d}</p>
+          </Card>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// --- CHAPTER 4: PRODUCT ---
+function ProductVerbatim() {
+  return (
+    <>
+      <Header level={1}>Продуктовая переупаковка</Header>
+      
+      <Header level={4}>4.1. Объект → Инвестиционный кейс</Header>
+      <Text>Рациональный инвестор покупает не объект, а понятный сценарий заработка.</Text>
+      
+      <div className="mx-5 relative py-6">
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-100 dark:bg-slate-800" />
+        <div className="space-y-10">
+           {[
+             { t: "Зачем?", h: "Инвестиционная цель", d: "Что должно случиться в жизни инвестора?" },
+             { t: "Как?", h: "Инвестиционная стратегия", d: "Как именно мы к этому придем?" },
+             { t: "Чем?", h: "Объект как инструмент", d: "За счет чего это произойдет?" },
+             { t: "Почему?", h: "Прогноз и риски", d: "Обоснованность и вероятность результата." }
+           ].map((step, i) => (
+             <div key={i} className="flex items-start gap-5 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-black text-xs shrink-0 shadow-lg italic">{step.t}</div>
+                <div className="pt-1">
+                   <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1">{step.h}</p>
+                   <p className="text-xs text-slate-500 leading-tight">{step.d}</p>
+                </div>
+             </div>
+           ))}
+        </div>
+      </div>
+
+      <Header level={4}>4.3. Критерии отбора объектов</Header>
+      <Text>Мы фиксируем критерии скоринга и отбора по каждой стратегии.</Text>
+      <Table rows={[
+        { label: "Локация / Спрос", value: "Обязательно" },
+        { label: "Надежность застройщика", value: "Обязательно" },
+        { label: "Стратегия выхода", value: "Обязательно" },
+        { label: "Юридическая чистота", value: "Обязательно" }
+      ]} />
+
+      <Header level={4}>4.4. Шаблоны презентации</Header>
+      <Card className="bg-blue-600 text-white border-0 shadow-xl shadow-blue-600/20">
+         <p className="text-xs opacity-60 uppercase font-black mb-4">Структура презентации:</p>
+         <ul className="grid grid-cols-2 gap-4">
+            {['Инвест-цель', 'Стратегия', 'Экономика', 'Риски', 'Сценарии', 'Вывод'].map((t, i) => (
+              <li key={i} className="text-xs font-bold flex items-center gap-2">
+                 <div className="w-1 h-1 rounded-full bg-white opacity-40 shrink-0" /> {t}
+              </li>
+            ))}
+         </ul>
+      </Card>
+    </>
+  );
+}
+
+// --- CHAPTER 5: SALES FUNNEL ---
+function FunnelVerbatim() {
+  return (
+    <>
+      <Header level={1}>Воронка продаж</Header>
+      
+      <Header level={4}>5.1. Этапы инвестиционных продаж</Header>
+      <ComparisonTable 
+        headers={["Классика", "Smart Solutions"]}
+        rows={[
+          ["Объекты", "Диагностика"],
+          ["Попытка дожать клиента", "Формирование решения"],
+          ["Размытые ожидания", "Презентация стратегии"],
+          ["Низкая конверсия", "Сделка + Сопровождение"]
+        ]}
+      />
+
+      <Header level={4}>5.2. Диагностика как точка входа</Header>
+      <Text>Диагностика и скоринг — обязательный первый этап. Без него продажа не продолжается.</Text>
+      <Table rows={[
+        { label: "Цель инвестора", value: "Доход / Рост" },
+        { label: "Горизонт", value: "1-3 / 3-5 лет" },
+        { label: "Бюджет", value: "Реальный диапазон" },
+        { label: "Риск-профиль", value: "L / M / H" }
+      ]} />
+
+      <Header level={4}>5.3. От Агента к Investment Manager</Header>
+      <ComparisonTable 
+        headers={["Агент", "Int. Manager"]}
+        rows={[
+          ["Продает объект", "Проектирует кейс"],
+          ["Показывает варианты", "Подбирает под стратегию"],
+          ["Давит на эмоции", "Работает через логику"],
+          ["Реагирует на запрос", "Управляет процессом"]
+        ]}
+      />
+
+      <Header level={4}>5.4. Обучение и контроль</Header>
+      <ul className="mx-5 space-y-4 mb-8">
+        {[
+          "Единые шаблоны презентаций стратегий",
+          "Скрипты диагностики и презентации",
+          "Анализ Zoom-звонков (проведена ли диагностика?)",
+          "Видео-презентации кейсов для внутренней валидации"
+        ].map((t, i) => (
+          <li key={i} className="flex gap-3 items-center p-3 border border-slate-100 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/50">
+             <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+             <span className="text-xs font-medium">{t}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+// --- CHAPTER 6: ACQUISITION ---
+function AcquisitionVerbatim() {
+  return (
+    <>
+      <Header level={1}>Каналы привлечения</Header>
+      
+      <Header level={4}>6.1. Почему прямой трафик — не основной?</Header>
+      <Card accent="red">
+        <p className="text-sm">Рынок перегрет. Платный трафик без доверия дает «сырье», низкий процент квалификации и высокую нагрузку на менеджеров.</p>
+      </Card>
+
+      <Header level={4}>6.2. Партнерский маркетинг — ключ к росту</Header>
+      <ComparisonTable 
+        headers={["Платный трафик", "Партнерский"]}
+        rows={[
+          ["Низкое доверие", "Высокое доверие"],
+          ["Низкая квалификация", "Высокая квалификация"],
+          ["Стоимость за клик", "Оплата за результат"],
+          ["Масштаб через бюджет", "Масштаб через сеть"]
+        ]}
+      />
+
+      <Header level={4}>6.3. Экспертный маркетинг и доверие</Header>
+      <Text>Инвестиции — это всегда про доверие к людям, а не к объявлениям.</Text>
+      <Card accent="blue">
+        <ul className="space-y-4">
+          <li className="flex justify-between items-center text-xs"><span>Публичные эфиры</span> <Badge>Visible</Badge></li>
+          <li className="flex justify-between items-center text-xs"><span>Аналитические разборы</span> <Badge>Expert</Badge></li>
+          <li className="flex justify-between items-center text-xs"><span>Презентации стратегий</span> <Badge>System</Badge></li>
+        </ul>
+      </Card>
+
+      <Header level={4}>6.4. SMM как долгосрочный актив</Header>
+      <Table rows={[
+        { label: "Экспертный контент", value: "Доверие" },
+        { label: "Видео-кейсы", value: "Прогрев" },
+        { label: "Лид-магниты", value: "Подписки" },
+        { label: "Рассылки", value: "Дожим" }
+      ]} />
+    </>
+  );
+}
+
+// --- CHAPTER 7: PARTNER MODEL ---
+function PartnersVerbatim() {
+  return (
+    <>
+      <Header level={1}>Партнерская модель</Header>
+      
+      <Header level={4}>7.1. Типы партнеров</Header>
+      <Table rows={[
+        { label: "Инвест-клубы", value: "Частные инвесторы" },
+        { label: "Комьюнити предпринимателей", value: "C-level аудитория" },
+        { label: "Финансовые советники", value: "Высокое доверие" },
+        { label: "Family Offices", value: "Высокий чек" }
+      ]} />
+
+      <Header level={4}>7.2. Ценность для партнера</Header>
+      <ComparisonTable 
+        headers={["Обычное агентство", "Smart Solutions"]}
+        rows={[
+          ["Продает объект", "Инвест-стратегию"],
+          ["Эмоции / Локация", "Цифры + Логика"],
+          ["Мин. поддержка", "Методология + Материалы"],
+          ["Репутационный риск", "Контролируемый процесс"]
+        ]}
+      />
+
+      <Header level={4}>7.3. Механика и Мотивация</Header>
+      <Text>Что мы даем партнеру:</Text>
+      <div className="mx-5 flex flex-wrap gap-2 mb-6">
+        {['шаблоны кейсов', 'расчеты доходности', 'методология', 'высокая комиссия', 'совместные эфиры'].map((t, i) => (
+           <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-tight border border-blue-100/50 dark:border-blue-500/20">{t}</span>
+        ))}
+      </div>
+
+      <Header level={4}>7.4. Чем мы НЕ являемся</Header>
+      <div className="mx-5 p-4 rounded-2xl bg-red-500/5 border border-red-500/20 flex gap-4 items-start">
+         <XCircle size={20} className="text-red-500 shrink-0" />
+         <div className="space-y-4">
+            <p className="text-xs font-bold text-red-600">Мы НЕ строим MLM-агентку.</p>
+            <p className="text-xs font-bold text-red-600">Мы НЕ гонимся за количеством партнеров.</p>
+            <p className="text-xs font-bold text-red-600">Мы НЕ даем продавать «что угодно».</p>
+         </div>
+      </div>
+    </>
+  );
+}
+
+// --- CHAPTER 8: OPERATIONS ---
+function OpsVerbatim() {
+  return (
+    <>
+      <Header level={1}>Маретинговая операционка</Header>
+      
+      <Header level={4}>8.1. Метрики, которые важны</Header>
+      <Text>Главная метрика — количество квалифицированных инвестиционных диалогов.</Text>
+      <Card accent="emerald">
+        <div className="grid grid-cols-2 gap-6 text-center">
+           <div>
+             <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">CPLQ</p>
+             <p className="text-[10px] uppercase font-bold text-slate-400 mt-2">Ключевой показатель</p>
+           </div>
+           <div>
+             <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">3+</p>
+             <p className="text-[10px] uppercase font-bold text-slate-400 mt-2">Сделок в месяц</p>
+           </div>
+        </div>
+      </Card>
+
+      <Header level={4}>8.2. Базовые требования к подрядчикам</Header>
+      <div className="mx-5 space-y-2 mb-6">
+        {[
+          "Понимание инвест-позиционирования Smart Solutions",
+          "Работа строго по офферам соответствующим стратегии",
+          "Еженедельная прозрачная отчетность по гипотезам",
+          "Продвинутый навык работы с AI (ускорение работы)",
+          "Готовность работать за результат (Success-fee)"
+        ].map((t, i) => (
+          <div key={i} className="flex gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl">
+             <ShieldCheck size={16} className="text-blue-500 shrink-0" />
+             <span className="text-xs font-medium">{t}</span>
+          </div>
+        ))}
+      </div>
+
+      <Header level={4}>8.4. Роль AI в маркетинге</Header>
+      <ComparisonTable 
+        headers={["Зона", "AI эффект"]}
+        rows={[
+          ["Контент", "Скорость и масштаб"],
+          ["Креативы", "Тестирование гипотез"],
+          ["Продажи", "Анализ звонков (QA)"],
+          ["CRM", "Релевантность рассылок"]
+        ]}
+      />
+    </>
+  );
+}
+
+// --- CHAPTER 9: ROADMAP ---
+function RoadmapVerbatim() {
+  return (
+    <>
+      <Header level={1}>План внедрения</Header>
+      
+      <Header level={4}>9.1. Приоритеты 30/60/90 дней</Header>
+      <div className="px-5 space-y-6 mb-8 py-2 relative">
+         <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-slate-100 dark:bg-slate-800" />
+         {[
+           { t: "30 дней: Фундамент", d: "Финализация позиционирования, переупаковка первых кейсов, первые партнеры, обучение команды." },
+           { t: "60 дней: Ускорение", d: "Масштабирование партнерств, экспертные выступления, SMM-воронка, лидерство в контенте." },
+           { t: "90 дней: Системность", d: "Оптимизация каналов, AI-инструменты, повторяемая модель сделок, база для масштаба." }
+         ].map((step, i) => (
+            <div key={i} className="flex gap-5 relative z-10 font-bold">
+               <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-lg uppercase leading-none text-center p-2 italic">{step.t.split(':')[0]}</div>
+               <div className="pt-1">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase leading-tight mb-1">{step.t.split(':')[1]}</h4>
+                  <p className="text-xs text-slate-500 leading-tight">{step.d}</p>
+               </div>
+            </div>
+         ))}
+      </div>
+
+      <Header level={4}>9.2. Ключевые инициативы</Header>
+      <div className="mx-5 grid grid-cols-1 gap-2 mb-8">
+         {[
+           "Переупаковка продукта в стратегии",
+           "Запуск партнерского маркетинга",
+           "Обучение команды Investment Manager",
+           "Экспертный контент и Личный Бренд",
+           "Контроль качества через метрики"
+         ].map((t, i) => (
+            <div key={i} className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl">
+               <div className="w-1 h-1 rounded-full bg-blue-600" />
+               <span className="text-xs font-bold leading-tight uppercase tracking-tight">{t}</span>
+            </div>
+         ))}
+      </div>
+    </>
+  );
+}
+
+// --- CHAPTER 10: GROWTH ---
+function GrowthVerbatim() {
+  return (
+    <>
+      <Header level={1}>Итоговая логика</Header>
+      
+      <Header level={4}>10.1. Как выйти на 3+ сделки в месяц?</Header>
+      <Text>За счет продукта (кейсы), каналов (партнерство) и воронки (диагностика). Концентрация на качестве входа, а не объеме лидов.</Text>
+      
+      <Header level={4}>10.2. Агентство как основа экосистемы</Header>
+      <Text>Агентство — первый и обязательный бизнес-юнит. Оно дает:</Text>
+      <ul className="mx-5 space-y-3 mb-8">
+        {[
+          { t: "Деньги", d: "Cash-flow на эксперименты и рост." },
+          { t: "Доверие", d: "Пул инвесторов и их рекомендации." },
+          { t: "Продукт", d: "Проверка инвест-стратегий на практике." },
+          { t: "Данные", d: "Статистика реального спроса и конверсий." }
+        ].map((item, i) => (
+          <li key={i} className="p-4 rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-1">
+             <p className="text-sm font-black text-slate-900 dark:text-white uppercase leading-none">{item.t}</p>
+             <p className="text-xs text-slate-500 leading-tight">{item.d}</p>
+          </li>
+        ))}
+      </ul>
+
+      <Header level={3}>Smart Solutions 2026</Header>
+      <Text className="mt-4 italic">
+        Мы не «строим экосистему сразу». Мы до неё доходим через сильное, прибыльное агентство.
+      </Text>
+      
+      <div className="px-5 py-8">
+        <div className="p-8 rounded-[40px] bg-slate-900 text-white text-center shadow-2xl relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-[60px] rounded-full -mr-10 -mt-10" />
+           <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-4 font-mono">End of Document</p>
+           <h3 className="text-2xl font-black mb-4 leading-tight tracking-tighter italic">Ready for Growth.</h3>
+           <CheckCircle2 size={40} className="mx-auto text-blue-500" />
+        </div>
+      </div>
+    </>
   );
 }

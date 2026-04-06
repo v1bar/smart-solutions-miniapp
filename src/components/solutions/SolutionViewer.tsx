@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Solution, SolutionPage } from '../../types';
 import { ArrowLeft, LayoutDashboard, BarChart3, Map, Users, Zap, ShieldCheck, Target, ArrowUpRight, Compass, Layers, BarChart4 } from 'lucide-react';
 import { cn } from '../../lib/cn';
@@ -138,24 +139,31 @@ export function SolutionViewer({ solution, onBack, activePageId, onPageChange }:
       </div>
 
       {/* Mobile: bottom nav transforms into sub-page tabs */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[101] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[101] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 safe-area-bottom overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 px-4 py-2 min-w-max">
           {solution.pages.map((page) => (
             <button
               key={page.id}
               onClick={() => handlePageChange(page)}
               className={cn(
-                'relative flex flex-col items-center gap-1 py-2 px-4 rounded-2xl transition-all',
+                'relative flex flex-col items-center gap-1 py-1.5 px-3 min-w-[70px] rounded-2xl transition-all',
                 currentActivePageId === page.id
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-slate-400 dark:text-slate-500'
               )}
             >
               {currentActivePageId === page.id && (
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                <motion.div 
+                  layoutId="activeTabIndicator"
+                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" 
+                />
               )}
-              {iconMap[page.icon] ?? <LayoutDashboard size={18} />}
-              <span className="text-[11px] font-medium">{page.title}</span>
+              <div className="flex items-center justify-center">
+                {iconMap[page.icon] ?? <LayoutDashboard size={18} />}
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-tighter truncate w-full text-center">
+                {page.title.split('. ')[1] || page.title}
+              </span>
             </button>
           ))}
         </div>
