@@ -5,7 +5,6 @@ import { AuditPreScreen } from './AuditPreScreen';
 import { AuditEngine } from './AuditEngine';
 import { AuditCompleteScreen } from './AuditCompleteScreen';
 import { AuditResultsViewer } from './AuditResultsViewer';
-import { submitAudit } from '../../lib/api';
 import { Loader2, ArchiveRestore } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/cn';

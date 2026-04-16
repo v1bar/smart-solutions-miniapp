@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Audit, AuditQuestion, AuditAnswer, Solution, SolutionPage, AppUser } from '../types';
+import { Audit, AuditAnswer, Solution, AppUser } from '../types';
 
 export async function loginOrRegister(telegramId: number, userProfile: Partial<AppUser>): Promise<AppUser> {
   // Upsert user based on telegramId

@@ -319,7 +319,7 @@ export function AuditEngine({ questions, onComplete, onBack }: AuditEngineProps)
             </div>
           ) : (
             <div className="space-y-12 animate-in fade-in duration-500">
-              {currentGroup.questions.map((q, idx) => (
+              {currentGroup.questions.map((q) => (
                 <div key={q.id} className="space-y-4">
                   <div className="space-y-1">
                     <span className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest">Вопрос {q.sortOrder}</span>
