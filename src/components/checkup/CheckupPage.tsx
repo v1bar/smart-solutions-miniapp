@@ -5,6 +5,7 @@ import { AuditPreScreen } from './AuditPreScreen';
 import { AuditEngine } from './AuditEngine';
 import { AuditCompleteScreen } from './AuditCompleteScreen';
 import { AuditResultsViewer } from './AuditResultsViewer';
+import { submitAudit } from '../../lib/api';
 import { Loader2, ArchiveRestore } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/cn';
@@ -61,6 +62,17 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
     setSelectedAudit(null);
     setCompletedAnswers([]);
   }, []);
+
+  const handleStrategyStart = useCallback(() => {
+    // Find the specific strategy audit from the database list
+    const strategyAudit = audits.find(a => a.id === 'strategy-audit-001');
+    if (strategyAudit) {
+      setSelectedAudit(strategyAudit);
+      setView('engine');
+    } else {
+      alert('Стратегический аудит не найден в базе данных. Пожалуйста, убедитесь, что SQL скрипт выполнен.');
+    }
+  }, [audits]);
 
   // Framer motion variants for view transitions
   const viewVariants = {
@@ -167,8 +179,27 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
                     </span>
                   </div>
                 )}
+
+                {/* Strategy Audit Dedicated Card */}
+                <div 
+                  onClick={handleStrategyStart}
+                  className="mb-8 p-6 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white shadow-xl shadow-slate-900/10 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Стратегический аудит: Стратегия</h3>
+                  <p className="text-slate-300 text-sm max-w-sm">
+                    Глубокая оценка бизнес-процессов, определение уязвимостей и точек масштабирования через базу данных.
+                  </p>
+                  <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-blue-400 group-hover:text-blue-300">
+                    Начать аудит &rarr;
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Стандартные аудиты</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {activeAudits.map((audit) => (
+                  {activeAudits.filter(a => a.id !== 'strategy-audit-001').map((audit) => (
                     <AuditCard key={audit.id} audit={audit} onClick={handleCardClick} />
                   ))}
                 </div>

@@ -71,6 +71,12 @@ export async function fetchAudits(userId: string): Promise<Audit[]> {
     const questions = a.questions ? a.questions.sort((q1: any, q2: any) => q1.sort_order - q2.sort_order).map((q: any) => ({
       ...q,
       options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+      groupTitle: q.group_title,
+      groupDescription: q.group_description,
+      sliderMin: q.slider_min,
+      sliderMax: q.slider_max,
+      sliderStep: q.slider_step,
+      sliderUnit: q.slider_unit,
     })) : [];
 
     return {
