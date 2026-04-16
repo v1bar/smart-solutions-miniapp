@@ -30,6 +30,8 @@ export interface AuditQuestion {
   sliderMax?: number;
   sliderStep?: number;
   sliderUnit?: string;
+  groupTitle?: string;
+  groupDescription?: string;
 }
 
 export interface Audit {
