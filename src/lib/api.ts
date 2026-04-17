@@ -17,6 +17,9 @@ export async function loginOrRegister(telegramId: number, userProfile: Partial<A
         telegram_id: telegramId,
         first_name: userProfile.name,
         avatar_url: userProfile.avatar,
+        username: userProfile.username || null,
+        phone: userProfile.phone || null,
+        personal_channel: userProfile.personalChannel || null,
         role: 'client' // Default role
       })
       .select('*')
@@ -29,10 +32,25 @@ export async function loginOrRegister(telegramId: number, userProfile: Partial<A
       telegramId: newUser.telegram_id,
       name: newUser.first_name,
       role: newUser.role,
-      avatar: newUser.avatar_url
+      avatar: newUser.avatar_url,
+      username: newUser.username,
+      phone: newUser.phone,
+      personalChannel: newUser.personal_channel
     };
   } else if (selectError) {
     throw selectError;
+  }
+
+  // Update existing user with latest profile data
+  const updates: Record<string, any> = {};
+  if (userProfile.name) updates.first_name = userProfile.name;
+  if (userProfile.avatar) updates.avatar_url = userProfile.avatar;
+  if (userProfile.username) updates.username = userProfile.username;
+  if (userProfile.phone) updates.phone = userProfile.phone;
+  if (userProfile.personalChannel) updates.personal_channel = userProfile.personalChannel;
+
+  if (Object.keys(updates).length > 0) {
+    await supabase.from('users').update(updates).eq('id', user.id);
   }
 
   return {
@@ -40,7 +58,10 @@ export async function loginOrRegister(telegramId: number, userProfile: Partial<A
     telegramId: user.telegram_id,
     name: user.first_name,
     role: user.role,
-    avatar: user.avatar_url
+    avatar: user.avatar_url,
+    username: user.username || userProfile.username,
+    phone: user.phone || userProfile.phone,
+    personalChannel: user.personal_channel || userProfile.personalChannel
   };
 }
 
@@ -98,6 +119,26 @@ export async function fetchAudits(userId: string): Promise<Audit[]> {
   return mappedAudits;
 }
 
+export async function uploadVoiceNote(userId: string, questionId: string, blob: Blob): Promise<string> {
+  const fileName = `voice_${userId}_${questionId}_${Date.now()}.webm`;
+  const filePath = `voice-notes/${userId}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('audit-files')
+    .upload(filePath, blob, {
+      contentType: 'audio/webm',
+      upsert: true
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from('audit-files')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
 export async function submitAudit(userId: string, auditId: string, answers: AuditAnswer[]): Promise<void> {
   // 1. Create or update session
   const { data: session, error: sessionError } = await supabase
@@ -113,22 +154,37 @@ export async function submitAudit(userId: string, auditId: string, answers: Audi
 
   if (sessionError) throw sessionError;
 
-  // 2. Insert answers
-  const answerInserts = answers.map(ans => ({
-    session_id: session.id,
-    user_id: userId,
-    audit_id: auditId,
-    question_id: ans.questionId,
-    selected_options: ans.selectedOptions || null,
-    slider_value: ans.sliderValue || null,
-    text_value: ans.textValue || null,
-    voice_url: ans.voiceUrl || null
-  }));
+  // 2. Upload voice notes and prepare answers
+  const processedAnswers = await Promise.all(
+    answers.map(async (ans) => {
+      let voiceUrl = ans.voiceUrl || null;
+
+      // Upload voice blob if present
+      if (ans.voiceBlob) {
+        try {
+          voiceUrl = await uploadVoiceNote(userId, ans.questionId, ans.voiceBlob);
+        } catch (e) {
+          console.error('Failed to upload voice note:', e);
+        }
+      }
+
+      return {
+        session_id: session.id,
+        user_id: userId,
+        audit_id: auditId,
+        question_id: ans.questionId,
+        selected_options: ans.selectedOptions || null,
+        slider_value: ans.sliderValue || null,
+        text_value: ans.textValue || null,
+        voice_url: voiceUrl
+      };
+    })
+  );
 
   // We should delete old answers for this session first in a real scenario, or rely on UPSERT via UNIQUE(session_id, question_id)
   const { error: answersError } = await supabase
     .from('answers')
-    .upsert(answerInserts, { onConflict: 'session_id,question_id' });
+    .upsert(processedAnswers, { onConflict: 'session_id,question_id' });
 
   if (answersError) throw answersError;
 }

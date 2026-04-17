@@ -4,12 +4,12 @@ import { AuditCard } from './AuditCard';
 import { AuditPreScreen } from './AuditPreScreen';
 import { AuditEngine } from './AuditEngine';
 import { AuditCompleteScreen } from './AuditCompleteScreen';
-import { AuditResultsViewer } from './AuditResultsViewer';
+import { fetchAnswersForAudit } from '../../lib/api';
 import { Loader2, ArchiveRestore } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/cn';
 
-type CheckupView = 'menu' | 'prescreen' | 'engine' | 'complete' | 'results';
+type CheckupView = 'menu' | 'prescreen' | 'engine' | 'complete' | 'loading';
 type TabState = 'active' | 'archive';
 
 interface CheckupPageProps {
@@ -23,21 +23,39 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
   const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
   const [completedAnswers, setCompletedAnswers] = useState<AuditAnswer[]>([]);
   const [activeTab, setActiveTab] = useState<TabState>('active');
+  const [previousAnswers, setPreviousAnswers] = useState<Map<string, AuditAnswer>>(new Map());
 
   const processingCount = audits.filter((a) => a.status === 'processing').length;
   // Available means 'available', 'in_progress', 'processing'
   const activeAudits = audits.filter((a) => a.status === 'available' || a.status === 'in_progress' || a.status === 'processing');
   const archivedAudits = audits.filter((a) => a.status === 'completed' || a.status === 'archived');
 
+  // Load previous answers from DB and open engine in readOnly mode
+  const openWithPreviousAnswers = useCallback(async (audit: Audit) => {
+    setSelectedAudit(audit);
+    setView('loading');
+
+    try {
+      const dbAnswers = await fetchAnswersForAudit(userId, audit.id);
+      const answersMap = new Map<string, AuditAnswer>();
+      dbAnswers.forEach(a => answersMap.set(a.questionId, a));
+      setPreviousAnswers(answersMap);
+      setView('engine');
+    } catch (err) {
+      console.error('Error loading previous answers:', err);
+      setView('menu');
+    }
+  }, [userId]);
+
   const handleCardClick = useCallback((audit: Audit) => {
-    if (audit.status === 'completed' || audit.status === 'archived') {
-      setSelectedAudit(audit);
-      setView('results');
+    if (audit.status === 'completed' || audit.status === 'archived' || audit.status === 'processing') {
+      openWithPreviousAnswers(audit);
       return;
     }
     setSelectedAudit(audit);
+    setPreviousAnswers(new Map());
     setView('prescreen');
-  }, []);
+  }, [openWithPreviousAnswers]);
 
   const handleStart = useCallback(() => {
     setView('engine');
@@ -54,6 +72,7 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
   const handleBack = useCallback(() => {
     setView('menu');
     setSelectedAudit(null);
+    setPreviousAnswers(new Map());
   }, []);
 
   const handleCompleteClose = useCallback(() => {
@@ -66,12 +85,18 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
     // Find the specific strategy audit from the database list
     const strategyAudit = audits.find(a => a.id === 'strategy-audit-001');
     if (strategyAudit) {
-      setSelectedAudit(strategyAudit);
-      setView('engine');
+      // If already completed/processing, show previous answers
+      if (strategyAudit.status === 'completed' || strategyAudit.status === 'archived' || strategyAudit.status === 'processing') {
+        openWithPreviousAnswers(strategyAudit);
+      } else {
+        setSelectedAudit(strategyAudit);
+        setPreviousAnswers(new Map());
+        setView('engine');
+      }
     } else {
       alert('Стратегический аудит не найден в базе данных. Пожалуйста, убедитесь, что SQL скрипт выполнен.');
     }
-  }, [audits]);
+  }, [audits, openWithPreviousAnswers]);
 
   // Framer motion variants for view transitions
   const viewVariants = {
@@ -79,6 +104,16 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
     animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -20 },
   };
+
+  // Loading view
+  if (view === 'loading') {
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="w-8 h-8 text-slate-400 animate-spin mx-auto mb-4" />
+        <p className="text-sm text-slate-500 font-medium">Загрузка ответов...</p>
+      </div>
+    );
+  }
 
   // Render based on current view
   if (view === 'prescreen' && selectedAudit) {
@@ -92,7 +127,12 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
   if (view === 'engine' && selectedAudit) {
     return (
       <motion.div variants={viewVariants} initial="initial" animate="animate" exit="exit" className="h-full">
-        <AuditEngine questions={selectedAudit.questions} onComplete={handleComplete} onBack={handleBack} />
+        <AuditEngine
+          questions={selectedAudit.questions}
+          onComplete={handleComplete}
+          onBack={handleBack}
+          initialAnswers={previousAnswers.size > 0 ? previousAnswers : undefined}
+        />
       </motion.div>
     );
   }
@@ -101,17 +141,9 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
     return <AuditCompleteScreen audit={selectedAudit} answers={completedAnswers} onClose={handleCompleteClose} />;
   }
 
-  if (view === 'results' && selectedAudit) {
-    return (
-      <motion.div variants={viewVariants} initial="initial" animate="animate" exit="exit" className="h-full">
-        <AuditResultsViewer audit={selectedAudit} userId={userId} onBack={handleBack} />
-      </motion.div>
-    );
-  }
-
   // Menu view with swipeable active/archive tabs
   return (
-    <motion.div 
+    <motion.div
       variants={viewVariants} initial="initial" animate="animate" exit="exit"
       className="min-h-screen px-4 md:px-8 py-6 md:py-8 flex flex-col"
     >
@@ -130,8 +162,8 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
             onClick={() => setActiveTab('active')}
             className={cn(
               "flex-1 py-1.5 text-sm font-medium rounded-lg transition-all",
-              activeTab === 'active' 
-                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm" 
+              activeTab === 'active'
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm"
                 : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             )}
           >
@@ -141,8 +173,8 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
             onClick={() => setActiveTab('archive')}
             className={cn(
               "flex-1 py-1.5 text-sm font-medium rounded-lg transition-all",
-              activeTab === 'archive' 
-                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm" 
+              activeTab === 'archive'
+                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm"
                 : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             )}
           >
@@ -180,16 +212,16 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
                 )}
 
                 {/* Strategy Audit Dedicated Card */}
-                <div 
+                <div
                   onClick={handleStrategyStart}
                   className="mb-8 p-6 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white shadow-xl shadow-slate-900/10 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all relative overflow-hidden group"
                 >
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                     <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Стратегический аудит: Стратегия</h3>
+                  <h3 className="text-xl font-bold mb-2">Стратегический аудит</h3>
                   <p className="text-slate-300 text-sm max-w-sm">
-                    Глубокая оценка бизнес-процессов, определение уязвимостей и точек масштабирования через базу данных.
+                    Анализ стратегических целей и возможности их достижения.
                   </p>
                   <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-blue-400 group-hover:text-blue-300">
                     Начать аудит &rarr;

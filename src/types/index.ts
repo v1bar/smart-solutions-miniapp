@@ -56,6 +56,7 @@ export interface AuditAnswer {
   sliderValue?: number;
   textValue?: string;
   voiceUrl?: string;
+  voiceBlob?: Blob; // local-only, not persisted
 }
 
 export interface AuditSession {
@@ -100,6 +101,9 @@ export interface AppUser {
   name: string;
   role: 'admin' | 'client';
   avatar?: string;
+  username?: string;
+  phone?: string;
+  personalChannel?: string;
   goalText?: string;
   goalMetric?: string;
 }

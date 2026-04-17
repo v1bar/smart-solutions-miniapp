@@ -21,10 +21,12 @@ function App() {
   useEffect(() => {
     let tgId = 123456789; // Default dev ID
     let tgName = 'Dev User';
+    let tgUsername = '';
 
     if (telegram.user) {
       tgId = telegram.user.id;
       tgName = telegram.user.first_name || 'User';
+      tgUsername = telegram.user.username || '';
     }
 
     telegram.init();
@@ -44,7 +46,7 @@ function App() {
 
     async function loadAppInfo() {
       try {
-        const user = await loginOrRegister(tgId, { name: tgName });
+        const user = await loginOrRegister(tgId, { name: tgName, username: tgUsername });
         setCurrentUser(user);
         
         const [loadedAudits, dbSolutions] = await Promise.all([
