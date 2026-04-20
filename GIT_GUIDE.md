@@ -25,12 +25,12 @@ git pull origin main
 Если вы планируете новую доработку (например, «фикс слайдера»):
 
 ```bash
-git checkout -b feature/Yury
+git checkout -b Yury
 ```
 
 ### Если партнер тоже что-то делает
 
-Он создаст свою ветку: `git checkout -b feature/partner-updates`. Вы сможете работать одновременно, и ваши файлы не будут перемешиваться до тех пор, пока вы не решите их объединить.
+Он создаст свою ветку: `git checkout -b partner-updates`. Вы сможете работать одновременно, и ваши файлы не будут перемешиваться до тех пор, пока вы не решите их объединить.
 
 ---
 
@@ -72,7 +72,7 @@ git checkout -b feature/Yury
 
 1. Перейдите в основную ветку: `git checkout main`
 2. Обновите её: `git pull origin main`
-3. Влейте свои изменения: `git merge feature/Yury`
+3. Влейте свои изменения: `git merge Yury`
 4. Отправьте итоговый результат: `git push origin main`
 
 ---

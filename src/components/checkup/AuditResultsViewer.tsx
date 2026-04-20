@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Audit, AuditAnswer } from '../../types';
-import { ArrowLeft, CheckCircle2, Loader2, PlayCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, PlayCircle, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { fetchAnswersForAudit } from '../../lib/api';
+import { fetchAnswersForAudit, updateAuditAnswer } from '../../lib/api';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface AuditResultsViewerProps {
   audit: Audit;
@@ -27,6 +28,23 @@ export function AuditResultsViewer({ audit, userId, onBack }: AuditResultsViewer
     }
     load();
   }, [audit.id, userId]);
+
+  const handleUpdateAnswer = async (newAnswer: AuditAnswer) => {
+    try {
+      // Optimistic update
+      setAnswers(prev => prev.map(a => a.questionId === newAnswer.questionId ? newAnswer : a));
+      
+      // Persist to DB
+      await updateAuditAnswer(userId, audit.id, newAnswer);
+      
+      // If voice message was recorded, we might need to refresh to get the new voiceUrl
+      const updatedData = await fetchAnswersForAudit(userId, audit.id);
+      setAnswers(updatedData);
+    } catch (err) {
+      console.error('Failed to update answer:', err);
+      alert('Не удалось сохранить изменения. Попробуйте еще раз.');
+    }
+  };
 
   return (
     <motion.div 
@@ -80,28 +98,34 @@ export function AuditResultsViewer({ audit, userId, onBack }: AuditResultsViewer
                     <div className="pt-2">
                       <div className="inline-block bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
                         <div className="text-sm text-slate-700 dark:text-slate-300">
-                          {!ans ? (
-                            <span className="opacity-50">Нет ответа</span>
-                          ) : q.type === 'slider' ? (
-                            <span className="font-semibold">{ans.sliderValue} {q.sliderUnit}</span>
-                          ) : q.type === 'text_input' ? (
-                            <span>{ans.textValue}</span>
-                          ) : q.type === 'voice_input' ? (
-                            <div className="flex items-center gap-2 text-blue-600">
-                              <PlayCircle size={16} /> <span>Голосовое сообщение ({ans.voiceUrl})</span>
+                          {q.type === 'slider' ? (
+                            <span className="font-semibold">{ans?.sliderValue ?? 0} {q.sliderUnit}</span>
+                          ) : q.type === 'text_input' || q.type === 'voice_input' ? (
+                            <div className="space-y-4">
+                              {ans?.textValue && <p className="mb-2 italic">{ans.textValue}</p>}
+                              <VoiceRecorder
+                                answer={ans}
+                                questionId={q.id}
+                                onAnswer={handleUpdateAnswer}
+                                showStatus={false}
+                              />
                             </div>
                           ) : (
                             <div className="space-y-1">
-                              {ans.selectedOptions?.map(optId => {
-                                const option = q.options?.find(o => o.id === optId);
-                                return option?.label ? (
-                                  <div key={optId} className="flex flex-wrap items-center gap-2">
-                                    <span className="font-medium">{option.label}</span>
-                                  </div>
-                                ) : (
-                                  <span key={optId}>{optId}</span>
-                                );
-                              })}
+                              {!ans || !ans.selectedOptions ? (
+                                <span className="opacity-50">Нет ответа</span>
+                              ) : (
+                                ans.selectedOptions.map(optId => {
+                                  const option = q.options?.find(o => o.id === optId);
+                                  return option?.label ? (
+                                    <div key={optId} className="flex flex-wrap items-center gap-2">
+                                      <span className="font-medium">{option.label}</span>
+                                    </div>
+                                  ) : (
+                                    <span key={optId}>{optId}</span>
+                                  );
+                                })
+                              )}
                             </div>
                           )}
                         </div>
