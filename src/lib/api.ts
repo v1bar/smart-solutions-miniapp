@@ -123,18 +123,29 @@ export async function uploadVoiceNote(userId: string, questionId: string, blob: 
   const fileName = `voice_${userId}_${questionId}_${Date.now()}.webm`;
   const filePath = `voice-notes/${userId}/${fileName}`;
 
-  const { error: uploadError } = await supabase.storage
+  console.log(`Starting upload: ${filePath}, size: ${blob.size} bytes`);
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
     .from('audit-files')
     .upload(filePath, blob, {
       contentType: 'audio/webm',
       upsert: true
     });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    console.error('Supabase Storage Upload Error:', uploadError);
+    throw new Error(`Upload failed: ${uploadError.message}`);
+  }
+
+  console.log('Upload successful:', uploadData);
 
   const { data } = supabase.storage
     .from('audit-files')
     .getPublicUrl(filePath);
+
+  if (!data?.publicUrl) {
+    throw new Error('Failed to generate public URL for uploaded file');
+  }
 
   return data.publicUrl;
 }
@@ -163,8 +174,12 @@ export async function submitAudit(userId: string, auditId: string, answers: Audi
       if (ans.voiceBlob) {
         try {
           voiceUrl = await uploadVoiceNote(userId, ans.questionId, ans.voiceBlob);
-        } catch (e) {
-          console.error('Failed to upload voice note:', e);
+          console.log(`Audio mapped for Q ${ans.questionId}: ${voiceUrl}`);
+        } catch (e: any) {
+          console.error(`CRITICAL: Failed to save voice for Q ${ans.questionId}:`, e);
+          // We still want to save the rest of the answer if possible, or should we fail?
+          // Re-throwing so the user sees a failure if the voice note is lost.
+          throw e; 
         }
       }
 
@@ -237,4 +252,42 @@ export async function fetchAnswersForAudit(userId: string, auditId: string): Pro
     textValue: row.text_value,
     voiceUrl: row.voice_url
   }));
+}
+
+export async function updateAuditAnswer(userId: string, auditId: string, answer: AuditAnswer): Promise<void> {
+  // 1. Get session ID
+  const { data: session, error: sessionError } = await supabase
+    .from('audit_sessions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('audit_id', auditId)
+    .single();
+
+  if (sessionError) throw sessionError;
+
+  // 2. Upload voice blob if present
+  let voiceUrl = answer.voiceUrl || null;
+  if (answer.voiceBlob) {
+    try {
+      voiceUrl = await uploadVoiceNote(userId, answer.questionId, answer.voiceBlob);
+    } catch (e) {
+      console.error('Failed to upload voice note:', e);
+    }
+  }
+
+  // 3. Upsert answer
+  const { error: answersError } = await supabase
+    .from('answers')
+    .upsert({
+      session_id: session.id,
+      user_id: userId,
+      audit_id: auditId,
+      question_id: answer.questionId,
+      selected_options: answer.selectedOptions || null,
+      slider_value: answer.sliderValue || null,
+      text_value: answer.textValue || null,
+      voice_url: voiceUrl
+    }, { onConflict: 'session_id,question_id' });
+
+  if (answersError) throw answersError;
 }

@@ -4,6 +4,7 @@ import { AuditCard } from './AuditCard';
 import { AuditPreScreen } from './AuditPreScreen';
 import { AuditEngine } from './AuditEngine';
 import { AuditCompleteScreen } from './AuditCompleteScreen';
+import { AuditResultsViewer } from './AuditResultsViewer';
 import { fetchAnswersForAudit } from '../../lib/api';
 import { Loader2, ArchiveRestore } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -132,6 +133,7 @@ export function CheckupPage({ audits, userId, onAuditComplete }: CheckupPageProp
           onComplete={handleComplete}
           onBack={handleBack}
           initialAnswers={previousAnswers.size > 0 ? previousAnswers : undefined}
+          isReview={previousAnswers.size > 0}
         />
       </motion.div>
     );
